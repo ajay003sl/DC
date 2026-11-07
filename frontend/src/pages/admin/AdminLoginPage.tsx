@@ -122,11 +122,23 @@ export const AdminLoginPage: React.FC = () => {
 
           {/* Seed demo credentials helper */}
           <div className="mt-8 pt-6 border-t border-[#F0ECE1] bg-[#FAF7F2] p-4 text-xs text-[#6B6B6B] space-y-1">
-            <p className="font-semibold text-boutique-charcoal flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-[#C5A880]" />
-              <span>Default Store Credentials:</span>
-            </p>
-            <p className="font-mono text-[11px]">Email: admin@jershihafashion.com (or admin@auraluxe.fashion)</p>
+            <div className="flex items-center justify-between mb-1">
+              <p className="font-semibold text-boutique-charcoal flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-[#C5A880]" />
+                <span>Default Store Credentials:</span>
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('admin@jershihafashion.com');
+                  setPassword('AdminPassword123!');
+                }}
+                className="text-[11px] text-[#B86B5A] hover:underline font-semibold"
+              >
+                Auto-fill
+              </button>
+            </div>
+            <p className="font-mono text-[11px]">Email: admin@jershihafashion.com</p>
             <p className="font-mono text-[11px]">Password: AdminPassword123!</p>
           </div>
 

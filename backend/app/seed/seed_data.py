@@ -17,30 +17,26 @@ def seed_database(force: bool = False):
 
     try:
         # 1. Admin User
-        admin_email = "admin@auraluxe.fashion"
-        admin = db.query(User).filter(User.email == admin_email).first()
-        if not admin:
-            admin = User(
-                email=admin_email,
-                hashed_password=get_password_hash("AdminPassword123!"),
-                full_name="Boutique Store Manager",
-                role="admin",
-                is_active=True
-            )
-            db.add(admin)
-            print("Created default admin user: admin@auraluxe.fashion / AdminPassword123!")
-
-        # Also support admin@jershihafashion.com
-        jershiha_admin = db.query(User).filter(User.email == "admin@jershihafashion.com").first()
-        if not jershiha_admin:
-            jershiha_admin = User(
-                email="admin@jershihafashion.com",
-                hashed_password=get_password_hash("AdminPassword123!"),
-                full_name="Jershiha Store Manager",
-                role="admin",
-                is_active=True
-            )
-            db.add(jershiha_admin)
+        admin_accounts = [
+            ("admin@jershihafashion.com", "Jershiha Store Manager"),
+            ("admin@auraluxe.fashion", "Boutique Store Manager"),
+        ]
+        for a_email, a_name in admin_accounts:
+            admin = db.query(User).filter(User.email == a_email).first()
+            if not admin:
+                admin = User(
+                    email=a_email,
+                    hashed_password=get_password_hash("AdminPassword123!"),
+                    full_name=a_name,
+                    role="admin",
+                    is_active=True
+                )
+                db.add(admin)
+                print(f"Created default admin user: {a_email} / AdminPassword123!")
+            else:
+                # Ensure existing admin is active
+                admin.is_active = True
+                db.add(admin)
         
         # 2. Categories
         categories_data = [
