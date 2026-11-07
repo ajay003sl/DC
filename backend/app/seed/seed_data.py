@@ -37,6 +37,7 @@ def seed_database(force: bool = False):
                 # Ensure existing admin is active
                 admin.is_active = True
                 db.add(admin)
+        db.commit()
         
         # 2. Categories
         categories_data = [
@@ -115,9 +116,10 @@ def seed_database(force: bool = False):
                 cat_map[c["slug"]] = cat
             else:
                 cat_map[c["slug"]] = existing
+        db.commit()
 
         # 3. Promotional Offers
-        now = datetime.now(timezone.utc)
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         festive_offer = db.query(Offer).filter(Offer.title == "Festive Glamour Sale").first()
         if not festive_offer:
             festive_offer = Offer(
@@ -148,7 +150,7 @@ def seed_database(force: bool = False):
             )
             db.add(summer_offer)
 
-        db.flush()
+        db.commit()
 
         # 4. Products with images and variant stock
         products_seed = [

@@ -1,7 +1,6 @@
-from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
-from app.core.database import Base
+from app.core.database import Base, utcnow
 
 class ProductVariant(Base):
     __tablename__ = "product_variants"
@@ -14,8 +13,8 @@ class ProductVariant(Base):
     stock_quantity = Column(Integer, default=0, nullable=False)
     sku_suffix = Column(String(50), nullable=True)
 
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime, default=utcnow, nullable=False)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow, nullable=False)
 
     product = relationship("Product", back_populates="variants")
 

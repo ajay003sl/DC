@@ -1,6 +1,5 @@
-from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from app.core.database import Base
+from app.core.database import Base, utcnow
 
 class User(Base):
     __tablename__ = "users"
@@ -11,6 +10,6 @@ class User(Base):
     full_name = Column(String(255), nullable=False)
     role = Column(String(50), default="admin", nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime, default=utcnow, nullable=False)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow, nullable=False)
 

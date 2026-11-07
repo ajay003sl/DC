@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Text, Float, Boolean, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
-from app.core.database import Base
+from app.core.database import Base, utcnow
 
 product_offers = Table(
     "product_offers",
@@ -23,8 +23,8 @@ class Offer(Base):
     start_date = Column(DateTime, nullable=False)
     expiry_date = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime, default=utcnow, nullable=False)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow, nullable=False)
 
     products = relationship("Product", secondary=product_offers, back_populates="offers")
 

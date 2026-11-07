@@ -1,6 +1,10 @@
+from datetime import datetime, timezone
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.core.config import settings
+
+def utcnow():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 db_url = settings.DATABASE_URL
 if db_url.startswith("postgres://"):

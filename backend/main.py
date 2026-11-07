@@ -6,7 +6,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from app.core.config import settings
-from app.core.database import engine, Base
+from app.core.database import engine, Base, SessionLocal
+import app.models
+from app.models.user import User
+from app.core.security import get_password_hash
 from app.api.v1 import api_router
 from app.seed.seed_data import seed_database
 
@@ -17,6 +20,27 @@ os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 async def lifespan(app: FastAPI):
     # Initialize tables and seed on startup
     Base.metadata.create_all(bind=engine)
+    
+    # 1. Guarantee admin exists with immediate commit
+    try:
+        db = SessionLocal()
+        admin = db.query(User).filter(User.email == "admin@jershihafashion.com").first()
+        if not admin:
+            admin = User(
+                email="admin@jershihafashion.com",
+                hashed_password=get_password_hash("AdminPassword123!"),
+                full_name="Jershiha Store Manager",
+                role="admin",
+                is_active=True
+            )
+            db.add(admin)
+            db.commit()
+            print("Guaranteed admin user initialized: admin@jershihafashion.com")
+        db.close()
+    except Exception as e:
+        print(f"Notice initializing admin: {e}")
+
+    # 2. Seed remaining demo catalog
     try:
         seed_database()
     except Exception as e:

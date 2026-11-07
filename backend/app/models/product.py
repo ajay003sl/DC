@@ -1,7 +1,6 @@
-from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Text, Float, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from app.core.database import Base
+from app.core.database import Base, utcnow
 from app.models.offer import product_offers
 
 class Product(Base):
@@ -24,8 +23,8 @@ class Product(Base):
     offer_label = Column(String(100), nullable=True) # e.g. "SALE", "20% OFF", "NEW ARRIVAL"
     is_active = Column(Boolean, default=True, nullable=False, index=True)
 
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime, default=utcnow, nullable=False)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow, nullable=False)
 
     # Relationships
     category = relationship("Category", back_populates="products")
