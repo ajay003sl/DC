@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: jershiha-fashion
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: SECRET_KEY
+        generateValue: true
+      - key: STORE_NAME
+        value: Jershiha Fashion
+      - key: STORE_WHATSAPP_NUMBER
+        value: "919876543210"
+      - key: STORE_PHONE
+        value: "+91 98765 43210"
+      - key: STORE_EMAIL
+        value: care@jershihafashion.com
+      - key: STORE_ADDRESS
+        value: "Plot 42, Galleria High Street, Indiranagar, Bangalore - 560038"
