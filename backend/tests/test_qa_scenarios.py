@@ -190,9 +190,23 @@ class TestCompleteQAScenarios(unittest.TestCase):
         token = login_res.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
-        # Use first available product
+        # Use first available product or create one if store catalog is empty
         prods_res = self.client.get("/api/v1/admin/products", headers=headers)
-        target_id = prods_res.json()["items"][0]["id"]
+        items = prods_res.json().get("items", [])
+        if not items:
+            cats_res = self.client.get("/api/v1/admin/categories", headers=headers)
+            cat_id = cats_res.json()[0]["id"]
+            create_res = self.client.post("/api/v1/admin/products", json={
+                "name": "Test Dress for Stock Matrix",
+                "category_id": cat_id,
+                "original_price": 2500.0,
+                "is_active": True,
+                "images": [{"image_url": "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b", "is_primary": True}],
+                "variants": [{"size": "S", "colour": "Emerald", "colour_hex": "#046307", "stock_quantity": 4}]
+            }, headers=headers)
+            target_id = create_res.json()["id"]
+        else:
+            target_id = items[0]["id"]
 
         variants_update = [
             {"size": "XS", "colour": "Emerald", "colour_hex": "#046307", "stock_quantity": 2},

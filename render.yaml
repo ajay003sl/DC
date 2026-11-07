@@ -1,3 +1,10 @@
+databases:
+  - name: jershiha-db
+    plan: free
+    region: singapore
+    databaseName: jershiha_store
+    user: jershiha_admin
+
 services:
   - type: web
     name: jershiha-fashion
@@ -8,6 +15,10 @@ services:
     envVars:
       - key: PORT
         value: 8000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: jershiha-db
+          property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: STORE_NAME
