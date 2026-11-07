@@ -1,0 +1,11 @@
+**/node_modules
+**/__pycache__
+**/.git
+**/.DS_Store
+**/venv
+*.pyc
+*.pyo
+*.pyd
+.Python
+backend/dc_store.db
+
