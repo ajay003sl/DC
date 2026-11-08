@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Menu, X, MessageCircle, Sparkles, ChevronDown } from 'lucide-react';
+import { Search, Menu, X, MessageCircle, Sparkles, ChevronDown, ShoppingBag } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
+import { useCart } from '../../context/CartContext';
 
 export const Navbar: React.FC = () => {
   const { categories, storeInfo } = useStore();
+  const { totalCount, openCart } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -153,6 +155,21 @@ export const Navbar: React.FC = () => {
               <Search className="w-5 h-5" />
             </button>
 
+            {/* Shopping Bag Button */}
+            <button
+              onClick={openCart}
+              className="relative p-2 text-boutique-charcoal hover:text-boutique-terracotta transition-colors flex items-center gap-1.5"
+              aria-label="View Shopping Bag"
+              title="Shopping Bag"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              {totalCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-full h-4 min-w-[16px] px-1 flex items-center justify-center shadow-xs">
+                  {totalCount}
+                </span>
+              )}
+            </button>
+
             {/* WhatsApp direct chat */}
             <a
               href={whatsappUrl}
@@ -236,7 +253,18 @@ export const Navbar: React.FC = () => {
           >
             Store Address & Hours
           </Link>
-          <div className="pt-2">
+          <div className="pt-2 space-y-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                openCart();
+              }}
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold tracking-wide bg-[#1A1A1A] text-white hover:bg-black transition-colors"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span>View Shopping Bag ({totalCount})</span>
+            </button>
+
             <a
               href={whatsappUrl}
               target="_blank"

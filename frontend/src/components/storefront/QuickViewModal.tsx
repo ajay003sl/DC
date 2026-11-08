@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { X, Check, ArrowRight } from 'lucide-react';
+import { X, Check, ArrowRight, ShoppingBag } from 'lucide-react';
 import { ProductCard, ProductDetail, ProductVariant } from '../../types';
 import { api } from '../../services/api';
 import { formatPrice } from '../../utils/format';
 import { WhatsAppButton } from '../common/WhatsAppButton';
+import { useCart } from '../../context/CartContext';
 
 interface QuickViewModalProps {
   product: ProductCard | null;
@@ -12,6 +13,7 @@ interface QuickViewModalProps {
 }
 
 export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => {
+  const { addItem } = useCart();
   const [detail, setDetail] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -210,21 +212,46 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
             </div>
 
             {/* Actions */}
-            <div className="space-y-3 pt-4 border-t border-[#EAE6E1]">
+            <div className="space-y-2.5 pt-4 border-t border-[#EAE6E1]">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!product || variantStock === 0) return;
+                  addItem({
+                    productId: product.id,
+                    name: product.name,
+                    sku: product.sku,
+                    slug: product.slug,
+                    price: product.effective_price,
+                    imageUrl: currentImageUrl,
+                    size: selectedSize || (detail?.available_sizes?.[0] || 'Standard'),
+                    colour: selectedColour || (detail?.available_colours?.[0] || 'Default'),
+                    quantity: 1,
+                    maxStock: variantStock > 0 ? variantStock : undefined
+                  });
+                  onClose();
+                }}
+                disabled={variantStock === 0}
+                className="w-full py-3.5 bg-[#1A1A1A] hover:bg-black text-white text-xs tracking-luxury uppercase font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-[0.99] disabled:opacity-50"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>{variantStock === 0 ? 'Sold Out' : 'Add to Shopping Bag'}</span>
+              </button>
+
               <WhatsAppButton
                 productName={product.name}
                 sku={product.sku}
                 size={selectedSize}
                 colour={selectedColour}
                 price={product.effective_price}
-                className="w-full justify-center !py-3.5"
-                label="Enquire on WhatsApp Now"
+                className="w-full justify-center !py-3 text-xs"
+                label="Buy Now via WhatsApp"
               />
 
               <Link
                 to={`/product/${product.slug}`}
                 onClick={onClose}
-                className="w-full py-2.5 text-center text-xs tracking-widest uppercase font-medium text-boutique-charcoal hover:text-boutique-terracotta transition-colors flex items-center justify-center gap-1.5"
+                className="w-full py-2 text-center text-xs tracking-widest uppercase font-medium text-boutique-charcoal hover:text-boutique-terracotta transition-colors flex items-center justify-center gap-1.5"
               >
                 <span>View Full Product Details & Gallery</span>
                 <ArrowRight className="w-3.5 h-3.5" />

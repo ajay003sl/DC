@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Sparkles, MessageCircle, Check, MapPin, ShieldCheck, Ruler, ArrowLeft, Share2 } from 'lucide-react';
+import { Sparkles, MessageCircle, Check, MapPin, ShieldCheck, Ruler, ArrowLeft, Share2, ShoppingBag } from 'lucide-react';
 import { ProductDetail as ProductDetailType, ProductCard as ProductCardType, ProductVariant } from '../../types';
 import { api } from '../../services/api';
 import { formatPrice } from '../../utils/format';
@@ -8,9 +8,11 @@ import { ImageZoom } from '../../components/common/ImageZoom';
 import { WhatsAppButton } from '../../components/common/WhatsAppButton';
 import { ProductCard } from '../../components/storefront/ProductCard';
 import { SizeGuideModal } from '../../components/common/SizeGuideModal';
+import { useCart } from '../../context/CartContext';
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { addItem } = useCart();
   const [product, setProduct] = useState<ProductDetailType | null>(null);
   const [related, setRelated] = useState<ProductCardType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,6 +94,22 @@ export const ProductDetailPage: React.FC = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);
+  };
+
+  const handleAddToBag = () => {
+    if (!product || isOutOfStock) return;
+    addItem({
+      productId: product.id,
+      name: product.name,
+      sku: product.sku,
+      slug: product.slug,
+      price: product.effective_price,
+      imageUrl: currentImageUrl,
+      size: selectedSize || (product.available_sizes?.[0] || 'Standard'),
+      colour: selectedColour || (product.available_colours?.[0] || 'Default'),
+      quantity: 1,
+      maxStock: stockQuantity > 0 ? stockQuantity : undefined
+    });
   };
 
   return (
@@ -283,16 +301,26 @@ export const ProductDetailPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Primary WhatsApp Action Button */}
-              <div className="space-y-3 pt-2">
+              {/* Primary Action Buttons: Add to Bag & Direct WhatsApp Order */}
+              <div className="space-y-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={handleAddToBag}
+                  disabled={isOutOfStock}
+                  className="w-full py-4 bg-[#1A1A1A] hover:bg-black text-white text-xs tracking-luxury uppercase font-semibold flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>{isOutOfStock ? 'Sold Out' : 'Add to Shopping Bag'}</span>
+                </button>
+
                 <WhatsAppButton
                   productName={product.name}
                   sku={product.sku}
                   size={selectedSize}
                   colour={selectedColour}
                   price={product.effective_price}
-                  className="w-full justify-center !py-4 text-sm"
-                  label="Enquire & Order on WhatsApp"
+                  className="w-full justify-center !py-3.5 text-xs"
+                  label="Buy Now via WhatsApp"
                 />
 
                 <button
@@ -353,22 +381,16 @@ export const ProductDetailPage: React.FC = () => {
       </div>
 
       {/* Mobile Sticky Bottom Action Bar */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#EAE6E1] p-3 px-4 z-40 shadow-2xl flex items-center justify-between gap-3 animate-slideUp">
-        <div className="flex flex-col min-w-0">
-          <div className="flex items-baseline gap-1.5 truncate">
-            <span className="text-base font-bold text-[#1A1A1A]">
-              {formatPrice(product.effective_price)}
-            </span>
-            {product.discounted_price && product.discounted_price < product.original_price && (
-              <span className="text-[11px] text-[#8C827A] line-through">
-                {formatPrice(product.original_price)}
-              </span>
-            )}
-          </div>
-          <p className="text-[10px] text-[#8C827A] truncate">
-            Size: <span className="font-bold text-black">{selectedSize || 'Choose'}</span> • {selectedColour}
-          </p>
-        </div>
+      <div className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#EAE6E1] p-2.5 px-3 z-40 shadow-2xl flex items-center gap-2 animate-slideUp">
+        <button
+          type="button"
+          onClick={handleAddToBag}
+          disabled={isOutOfStock}
+          className="flex-1 py-3 bg-[#1A1A1A] hover:bg-black text-white text-[11px] uppercase tracking-wider font-semibold flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
+        >
+          <ShoppingBag className="w-3.5 h-3.5" />
+          <span>Add to Bag</span>
+        </button>
 
         <WhatsAppButton
           productName={product.name}
@@ -376,8 +398,8 @@ export const ProductDetailPage: React.FC = () => {
           size={selectedSize}
           colour={selectedColour}
           price={product.effective_price}
-          className="flex-1 justify-center !py-3 !text-xs !tracking-wider"
-          label="WhatsApp Order"
+          className="flex-1 justify-center !py-3 !text-[11px] !tracking-wider"
+          label="Buy on WhatsApp"
         />
       </div>
 

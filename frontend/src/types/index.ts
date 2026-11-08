@@ -133,3 +133,17 @@ export interface StoreInfo {
   maps_embed_url: string;
 }
 
+export interface CartItem {
+  id: string;
+  productId: number;
+  name: string;
+  sku: string;
+  slug: string;
+  price: number;
+  imageUrl: string;
+  size: string;
+  colour: string;
+  quantity: number;
+  maxStock?: number;
+}
+

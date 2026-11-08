@@ -3,12 +3,14 @@ import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom
 import { AuthProvider } from './context/AuthContext';
 import { StoreProvider } from './context/StoreContext';
 import { WishlistProvider } from './context/WishlistContext';
+import { CartProvider } from './context/CartContext';
 
 // Common Layouts
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
 import { FloatingWhatsApp } from './components/common/FloatingWhatsApp';
 import { ScrollToTop } from './components/common/ScrollToTop';
+import { CartDrawer } from './components/storefront/CartDrawer';
 import { AdminLayout } from './components/admin/AdminLayout';
 
 // Public Pages
@@ -35,6 +37,7 @@ const StorefrontLayout: React.FC = () => {
       <main className="flex-1">
         <Outlet />
       </main>
+      <CartDrawer />
       <FloatingWhatsApp />
       <Footer />
     </div>
@@ -46,7 +49,8 @@ export const App: React.FC = () => {
     <AuthProvider>
       <StoreProvider>
         <WishlistProvider>
-          <BrowserRouter>
+          <CartProvider>
+            <BrowserRouter>
             <ScrollToTop />
             <Routes>
             {/* Public Storefront Routes */}
@@ -92,6 +96,7 @@ export const App: React.FC = () => {
             />
           </Routes>
         </BrowserRouter>
+          </CartProvider>
         </WishlistProvider>
       </StoreProvider>
     </AuthProvider>
