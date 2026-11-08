@@ -56,10 +56,10 @@ export const App: React.FC = () => {
             {/* Public Storefront Routes */}
             <Route element={<StorefrontLayout />}>
               <Route path="/" element={<HomePage />} />
-              <Route path="/shop" element={<ShopPage />} />
+              <Route path="/shop" element={<HomePage />} />
               <Route path="/product/:slug" element={<ProductDetailPage />} />
               <Route path="/category/:slug" element={<CategoryPage />} />
-              <Route path="/offers" element={<Navigate to="/shop" replace />} />
+              <Route path="/offers" element={<Navigate to="/" replace />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
             </Route>

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, MessageCircle, MapPin, Clock, ShieldCheck } from 'lucide-react';
-import { ProductCard as ProductCardType } from '../../types';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Sparkles, Search, X, ChevronLeft, ChevronRight, SlidersHorizontal, MessageCircle, ShoppingBag } from 'lucide-react';
+import { ProductCard as ProductCardType, ProductListResponse } from '../../types';
 import { api } from '../../services/api';
 import { useStore } from '../../context/StoreContext';
 import { ProductCard } from '../../components/storefront/ProductCard';
@@ -9,21 +9,51 @@ import { QuickViewModal } from '../../components/storefront/QuickViewModal';
 
 export const HomePage: React.FC = () => {
   const { categories, storeInfo } = useStore();
-  const [featuredProducts, setFeaturedProducts] = useState<ProductCardType[]>([]);
-  const [newArrivals, setNewArrivals] = useState<ProductCardType[]>([]);
-  const [quickViewProduct, setQuickViewProduct] = useState<ProductCardType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const productsRef = useRef<HTMLDivElement>(null);
 
+  // States controlled via URL parameters for seamless sharing & back-button support
+  const selectedCategory = searchParams.get('category') || '';
+  const currentPage = Number(searchParams.get('page')) || 1;
+  const sortBy = searchParams.get('sort') || 'latest';
+  const searchQueryParam = searchParams.get('search') || '';
+
+  const [searchInput, setSearchInput] = useState(searchQueryParam);
+  const [products, setProducts] = useState<ProductCardType[]>([]);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [quickViewProduct, setQuickViewProduct] = useState<ProductCardType | null>(null);
+
+  const PAGE_SIZE = 12;
+
+  // Sync search input if URL changes externally
+  useEffect(() => {
+    setSearchInput(searchQueryParam);
+  }, [searchQueryParam]);
+
+  // Fetch products whenever category, page, sort, or search changes
   useEffect(() => {
     let isMounted = true;
-    api.public.getFeaturedCollections()
-      .then((data) => {
+    setLoading(true);
+
+    api.public.getProducts({
+      page: currentPage,
+      page_size: PAGE_SIZE,
+      category_slug: selectedCategory || undefined,
+      search: searchQueryParam.trim() || undefined,
+      sort_by: sortBy,
+    })
+      .then((res: ProductListResponse) => {
         if (isMounted) {
-          setFeaturedProducts(data.featured);
-          setNewArrivals(data.new_arrivals);
+          setProducts(res.items);
+          setTotalProducts(res.total);
+          setTotalPages(res.total_pages || 1);
         }
       })
-      .catch((err) => console.error('Failed to load home collections', err))
+      .catch((err) => {
+        console.error('Failed to load products', err);
+      })
       .finally(() => {
         if (isMounted) setLoading(false);
       });
@@ -31,237 +61,312 @@ export const HomePage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [selectedCategory, currentPage, sortBy, searchQueryParam]);
 
-  const whatsappNumber = storeInfo?.whatsapp_number || '918925184903';
-  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Jershiha Fashion! I would like to book a personal styling visit at your boutique.')}`;
+  // Helper to update query parameters
+  const updateParams = (updates: Record<string, string | null>) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(updates).forEach(([key, val]) => {
+      if (!val || val === '1' && key === 'page' || val === 'latest' && key === 'sort') {
+        next.delete(key);
+      } else {
+        next.set(key, val);
+      }
+    });
+    setSearchParams(next);
+  };
+
+  const handleCategorySelect = (slug: string) => {
+    updateParams({ category: slug || null, page: null });
+    // Smooth scroll down to products toolbar if scrolled past
+    if (productsRef.current) {
+      productsRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateParams({ search: searchInput.trim() || null, page: null });
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    updateParams({ search: null, page: null });
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    updateParams({ page: String(newPage) });
+    if (productsRef.current) {
+      productsRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const currentCategoryObj = categories.find((c) => c.slug === selectedCategory);
+  const activeCategoryName = currentCategoryObj ? currentCategoryObj.name : 'All Dresses';
 
   return (
     <div className="min-h-screen bg-[#FDFBF7]">
-      {/* 1. Hero Banner */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#1A1A1A]">
-        {/* Background Fashion Imagery with Dark Elegant Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1920&q=80"
-            alt="Women's Haute Couture Fashion"
-            className="w-full h-full object-cover object-center opacity-40 filter brightness-90"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] via-black/40 to-black/30" />
-        </div>
-
-        {/* Hero Content */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white py-20">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#E5D3B3] text-xs uppercase tracking-luxury mb-6 animate-fadeIn">
-            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>Spring & Festive Collection 2026</span>
-          </div>
-
-          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-normal tracking-[0.08em] leading-tight mb-6">
-            Everyday Style & Grace, <br />
-            <span className="italic font-light">Handpicked for You.</span>
-          </h1>
-
-          <p className="max-w-2xl mx-auto text-base sm:text-lg text-[#EAE6E1] font-light leading-relaxed mb-10 tracking-wide">
-            Explore our physical store's collection of readymade kurtis, sarees, comfortable western wear, and custom-fit dresses. Browse live stock or connect directly on WhatsApp.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              to="/shop"
-              className="w-full sm:w-auto px-8 py-4 bg-white text-[#1A1A1A] hover:bg-[#FAF7F2] text-xs uppercase tracking-luxury font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-            >
-              <span>Explore Collection</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto px-8 py-4 bg-emerald-600/90 hover:bg-emerald-600 text-white text-xs uppercase tracking-luxury font-semibold backdrop-blur-md transition-all duration-300 border border-emerald-500/50 flex items-center justify-center gap-2"
-            >
-              <MessageCircle className="w-4 h-4 fill-white" />
-              <span>WhatsApp Store Enquiry</span>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. Boutique Values / Physical Store Highlights */}
-      <section className="py-10 bg-white border-b border-[#EAE6E1]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-            <div className="flex items-center gap-4 p-4 border border-[#F2ECE1] md:border-none">
-              <div className="w-12 h-12 rounded-full bg-[#FAF7F2] flex items-center justify-center text-[#B86B5A] flex-shrink-0">
-                <MapPin className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="font-serif text-lg text-boutique-charcoal font-medium">Physical Store Experience</h4>
-                <p className="text-xs text-[#8C827A] mt-0.5">Visit our shop to check fabrics, try on clothes & get custom fitting.</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 p-4 border border-[#F2ECE1] md:border-none">
-              <div className="w-12 h-12 rounded-full bg-[#FAF7F2] flex items-center justify-center text-emerald-700 flex-shrink-0">
-                <MessageCircle className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="font-serif text-lg text-boutique-charcoal font-medium">Direct WhatsApp Help</h4>
-                <p className="text-xs text-[#8C827A] mt-0.5">Check real-time stock, reserve sizes, or ask for photos before visiting.</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 p-4 border border-[#F2ECE1] md:border-none">
-              <div className="w-12 h-12 rounded-full bg-[#FAF7F2] flex items-center justify-center text-[#C5A880] flex-shrink-0">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="font-serif text-lg text-boutique-charcoal font-medium">Custom Fitting & Quality</h4>
-                <p className="text-xs text-[#8C827A] mt-0.5">We offer size alterations and customisation so every dress fits comfortably.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. Category Showcase Grid */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-xs uppercase tracking-luxury text-[#B86B5A] font-semibold mb-2">Curated Silhouettes</p>
-          <h2 className="font-serif text-3xl sm:text-4xl text-boutique-charcoal font-normal">
-            Shop by Category
-          </h2>
-          <div className="w-16 h-0.5 bg-[#C5A880] mx-auto mt-4" />
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              to={`/category/${cat.slug}`}
-              className="group relative aspect-[3/4] overflow-hidden bg-[#F5F2EB] border border-[#EAE6E1]"
-            >
-              <img
-                src={cat.image_url || 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80'}
-                alt={cat.name}
-                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent group-hover:from-black/80 transition-colors" />
-              
-              <div className="absolute inset-x-0 bottom-0 p-4 text-center text-white">
-                <h3 className="font-serif text-xl sm:text-2xl font-normal tracking-wide text-white group-hover:text-[#E5D3B3] transition-colors">
-                  {cat.name}
-                </h3>
-                {cat.product_count !== undefined && (
-                  <p className="text-[11px] tracking-luxury uppercase text-[#EAE6E1]/80 mt-1">
-                    {cat.product_count} Designs Available
-                  </p>
-                )}
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* 4. New Arrivals Section */}
-      <section className="py-16 bg-[#FAF7F2] border-y border-[#EAE6E1]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-end mb-10 pb-4 border-b border-[#EAE6E1]">
-            <div>
-              <p className="text-xs uppercase tracking-luxury text-[#B86B5A] font-semibold mb-1">Just Unpacked in Store</p>
-              <h2 className="font-serif text-3xl sm:text-4xl text-boutique-charcoal font-normal">
-                New Arrivals
-              </h2>
-            </div>
-            <Link
-              to="/shop?sort_by=latest"
-              className="mt-4 sm:mt-0 text-xs uppercase tracking-luxury font-medium text-boutique-charcoal hover:text-boutique-terracotta transition-colors flex items-center gap-1.5"
-            >
-              <span>View All New Pieces</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="aspect-[3/4] bg-white animate-pulse border border-[#EAE6E1]" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {newArrivals.slice(0, 4).map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onQuickView={(p) => setQuickViewProduct(p)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* 5. Featured Dresses Collection */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row justify-between items-end mb-10 pb-4 border-b border-[#EAE6E1]">
+      {/* 1. Compact Clean Boutique Banner */}
+      <section className="bg-[#1A1A1A] text-white py-6 sm:py-9 px-4 border-b border-[#2B2B2B]">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <div>
-            <p className="text-xs uppercase tracking-luxury text-[#B86B5A] font-semibold mb-1">Editor's Curation</p>
-            <h2 className="font-serif text-3xl sm:text-4xl text-boutique-charcoal font-normal">
-              Featured Dresses & Silhouettes
-            </h2>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#E5D3B3] text-[10px] sm:text-xs tracking-wider uppercase font-medium mb-2">
+              <Sparkles className="w-3 h-3 text-[#D4AF37]" />
+              <span>Bangalore Boutique & Direct Online Ordering</span>
+            </div>
+            <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal tracking-wide text-white">
+              {storeInfo?.store_name || 'Jershiha Fashion'}
+            </h1>
+            <p className="text-xs sm:text-sm text-[#C4BDB5] mt-1 max-w-xl font-light">
+              Handpicked sarees, festive kurtis & designer dresses. Check live designs, add to your bag, or order directly via WhatsApp.
+            </p>
           </div>
-          <Link
-            to="/shop"
-            className="mt-4 sm:mt-0 text-xs uppercase tracking-luxury font-medium text-boutique-charcoal hover:text-boutique-terracotta transition-colors flex items-center gap-1.5"
-          >
-            <span>View Complete Store Catalog</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {featuredProducts.slice(0, 4).map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onQuickView={(p) => setQuickViewProduct(p)}
-            />
-          ))}
+          {/* Quick Search Input */}
+          <div className="w-full md:w-80">
+            <form onSubmit={handleSearchSubmit} className="relative">
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Search by dress name or style..."
+                className="w-full pl-9 pr-9 py-2.5 bg-white text-boutique-charcoal text-xs placeholder-[#9C948B] border border-transparent focus:outline-none focus:border-[#D4AF37] rounded-none shadow-sm"
+              />
+              <Search className="w-4 h-4 text-[#8C827A] absolute left-3 top-3" />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-3 top-3 text-[#8C827A] hover:text-black"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </form>
+          </div>
         </div>
       </section>
 
-      {/* 6. Store Visit & Physical Boutique Invitation */}
-      <section className="py-16 bg-[#F2ECE1] border-t border-[#EAE6E1]">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <span className="font-serif text-2xl sm:text-3xl tracking-widest uppercase text-boutique-charcoal">
-            Visit Our Boutique Store
-          </span>
-          <p className="text-sm text-[#6B6B6B] max-w-xl mx-auto mt-3 mb-6">
-            Feel the pure silks, get measured for custom sleeve and hem adjustments, or consult directly with our in-house fashion stylists.
-          </p>
-          <div className="flex flex-wrap justify-center gap-6 text-xs text-boutique-charcoal font-medium">
-            <span className="flex items-center gap-1.5 max-w-md">
-              <MapPin className="w-4 h-4 text-[#B86B5A] flex-shrink-0" />
-              <span className="truncate">{storeInfo?.address || 'Indiranagar, Bangalore'}</span>
+      {/* 2. Visual Category Selector Section */}
+      <section className="bg-white border-b border-[#EAE6E1] py-4 sticky top-16 sm:top-20 z-30 shadow-2xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] uppercase tracking-wider font-semibold text-[#8C827A]">
+              Browse Categories:
             </span>
-            <span className="flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-[#B86B5A] flex-shrink-0" />
-              <span>{storeInfo?.hours || 'Mon - Sun: 10:00 AM - 9:00 PM'}</span>
-            </span>
+            {selectedCategory && (
+              <button
+                onClick={() => handleCategorySelect('')}
+                className="text-[11px] text-boutique-terracotta hover:underline font-medium"
+              >
+                View All Categories
+              </button>
+            )}
           </div>
-          <div className="mt-8">
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1A1A1A] hover:bg-black text-white text-xs uppercase tracking-luxury font-medium transition-colors shadow-md"
+
+          {/* Category Tabs (Scrollable on Mobile) */}
+          <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1.5 scrollbar-none no-scrollbar">
+            {/* All Designs Tab */}
+            <button
+              onClick={() => handleCategorySelect('')}
+              className={`flex-shrink-0 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-2 rounded-xs border ${
+                selectedCategory === ''
+                  ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-xs'
+                  : 'bg-[#FAF7F2] text-boutique-charcoal border-[#EAE6E1] hover:border-[#D5C4B0] hover:bg-white'
+              }`}
             >
-              <span>Get Directions & Store Hours</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+              <span>All Designs</span>
+              {selectedCategory === '' && totalProducts > 0 && (
+                <span className="px-1.5 py-0.2 bg-white/20 text-white text-[10px] rounded-full">
+                  {totalProducts}
+                </span>
+              )}
+            </button>
+
+            {/* Dynamic Category Tabs */}
+            {categories.map((cat) => {
+              const isSelected = selectedCategory === cat.slug;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategorySelect(cat.slug)}
+                  className={`flex-shrink-0 px-3.5 py-2 text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-2.5 rounded-xs border ${
+                    isSelected
+                      ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-xs'
+                      : 'bg-[#FAF7F2] text-boutique-charcoal border-[#EAE6E1] hover:border-[#D5C4B0] hover:bg-white'
+                  }`}
+                >
+                  {cat.image_url && (
+                    <img
+                      src={cat.image_url}
+                      alt={cat.name}
+                      className="w-4 h-4 rounded-full object-cover border border-white/40 flex-shrink-0"
+                    />
+                  )}
+                  <span>{cat.name}</span>
+                  {cat.product_count !== undefined && cat.product_count > 0 && (
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-[#EAE6E1] text-[#8C827A]'}`}>
+                      {cat.product_count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
+      </section>
+
+      {/* 3. Products Section & Toolbar */}
+      <section ref={productsRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Toolbar: Category Title, Search Query Tag & Sort */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-6 border-b border-[#EAE6E1]">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="font-serif text-xl sm:text-2xl font-medium text-boutique-charcoal">
+              {activeCategoryName}
+            </h2>
+            <span className="text-xs text-[#8C827A] font-medium bg-[#FAF7F2] border border-[#EAE6E1] px-2 py-0.5 rounded-full">
+              {totalProducts} {totalProducts === 1 ? 'dress' : 'dresses'}
+            </span>
+
+            {searchQueryParam && (
+              <span className="inline-flex items-center gap-1 text-xs bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-full">
+                <span>Search: "{searchQueryParam}"</span>
+                <button onClick={handleClearSearch} className="hover:text-red-700 ml-1">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+          </div>
+
+          {/* Sort By Dropdown */}
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            <span className="text-xs text-[#8C827A] uppercase tracking-wider font-medium">Sort:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => updateParams({ sort: e.target.value, page: null })}
+              className="bg-white border border-[#D5C4B0] text-xs font-medium py-1.5 px-2.5 text-boutique-charcoal focus:outline-none cursor-pointer shadow-2xs"
+            >
+              <option value="latest">Latest Arrivals</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="discount">Highest Discount</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Products Grid */}
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div key={n} className="bg-white border border-[#EAE6E1] aspect-[3/4] animate-pulse p-4 flex flex-col justify-end">
+                <div className="h-4 bg-gray-200 mb-2 w-3/4" />
+                <div className="h-4 bg-gray-200 w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-20 bg-white border border-[#EAE6E1] p-8 space-y-4">
+            <div className="w-14 h-14 bg-[#FAF7F2] border border-[#EAE6E1] rounded-full flex items-center justify-center mx-auto text-[#8C827A]">
+              <Search className="w-6 h-6 stroke-[1.5]" />
+            </div>
+            <div>
+              <p className="font-serif text-xl font-medium text-boutique-charcoal">
+                No dresses found
+              </p>
+              <p className="text-xs text-[#8C827A] mt-1 max-w-sm mx-auto">
+                {searchQueryParam
+                  ? `No items match "${searchQueryParam}" in this category.`
+                  : 'No dresses are currently available in this category.'}
+              </p>
+            </div>
+            {(searchQueryParam || selectedCategory) && (
+              <button
+                onClick={() => {
+                  setSearchInput('');
+                  updateParams({ search: null, category: null, page: null });
+                }}
+                className="px-5 py-2.5 bg-[#1A1A1A] hover:bg-black text-white text-xs uppercase tracking-wider font-semibold transition-colors shadow-sm"
+              >
+                Clear Filters & View All
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-6">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onQuickView={(p) => setQuickViewProduct(p)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* 4. Pagination Section */}
+        {totalPages > 1 && (
+          <div className="mt-12 pt-6 border-t border-[#EAE6E1] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-[#8C827A]">
+              Showing Page <span className="font-semibold text-boutique-charcoal">{currentPage}</span> of{' '}
+              <span className="font-semibold text-boutique-charcoal">{totalPages}</span> ({totalProducts} total dresses)
+            </p>
+
+            <div className="flex items-center gap-1.5">
+              {/* Previous Button */}
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage <= 1}
+                className="px-3 py-2 text-xs font-semibold uppercase tracking-wider border border-[#D5C4B0] bg-white text-boutique-charcoal hover:bg-[#FAF7F2] disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1 transition-colors"
+                aria-label="Previous Page"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Prev</span>
+              </button>
+
+              {/* Numbered Page Buttons */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                // Show first, last, current, and adjacent pages
+                const isCurrent = pageNum === currentPage;
+                const isNearCurrent = Math.abs(pageNum - currentPage) <= 1;
+                const isEnd = pageNum === 1 || pageNum === totalPages;
+
+                if (!isNearCurrent && !isEnd) {
+                  if (pageNum === 2 || pageNum === totalPages - 1) {
+                    return <span key={pageNum} className="px-1 text-xs text-[#8C827A]">...</span>;
+                  }
+                  return null;
+                }
+
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`min-w-[36px] h-9 px-2 text-xs font-semibold uppercase transition-colors border ${
+                      isCurrent
+                        ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-xs'
+                        : 'bg-white text-boutique-charcoal border-[#D5C4B0] hover:bg-[#FAF7F2]'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              {/* Next Button */}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+                className="px-3 py-2 text-xs font-semibold uppercase tracking-wider border border-[#D5C4B0] bg-white text-boutique-charcoal hover:bg-[#FAF7F2] disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1 transition-colors"
+                aria-label="Next Page"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Quick View Modal */}
@@ -272,4 +377,3 @@ export const HomePage: React.FC = () => {
     </div>
   );
 };
-

@@ -17,7 +17,7 @@ export const Navbar: React.FC = () => {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
       setSearchQuery('');
     }
@@ -109,7 +109,7 @@ export const Navbar: React.FC = () => {
                   {categories.map((cat) => (
                     <Link
                       key={cat.id}
-                      to={`/category/${cat.slug}`}
+                      to={`/?category=${cat.slug}`}
                       onClick={() => setCategoryDropdown(false)}
                       className="block px-5 py-2 text-sm text-boutique-charcoal hover:bg-[#FAF7F2] hover:text-boutique-terracotta transition-colors"
                     >
@@ -230,7 +230,7 @@ export const Navbar: React.FC = () => {
               {categories.map((c) => (
                 <Link
                   key={c.id}
-                  to={`/category/${c.slug}`}
+                  to={`/?category=${c.slug}`}
                   onClick={() => setMobileMenuOpen(false)}
                   className="text-sm py-1 text-boutique-charcoal hover:text-boutique-terracotta"
                 >

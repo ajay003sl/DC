@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, MessageCircle, Sparkles } from 'lucide-react';
+import { Eye, MessageCircle, Sparkles, ShoppingBag, Check } from 'lucide-react';
 import { ProductCard as ProductCardType } from '../../types';
 import { formatPrice } from '../../utils/format';
 import { WhatsAppButton } from '../common/WhatsAppButton';
+import { useCart } from '../../context/CartContext';
 
 interface ProductCardProps {
   product: ProductCardType;
@@ -12,12 +13,36 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [added, setAdded] = useState(false);
+  const { addItem } = useCart();
 
   const primaryImage = product.primary_image_url || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80';
   const secondaryImage = product.images.length > 1 ? product.images[1].image_url : primaryImage;
 
   const isOutOfStock = product.total_stock === 0;
   const isLowStock = product.total_stock > 0 && product.total_stock <= 3;
+
+  const handleQuickAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isOutOfStock) return;
+
+    addItem({
+      productId: product.id,
+      name: product.name,
+      sku: product.sku,
+      slug: product.slug,
+      price: product.effective_price,
+      imageUrl: primaryImage,
+      size: product.available_sizes?.[0] || 'Free Size',
+      colour: product.available_colours?.[0] || 'Standard',
+      quantity: 1,
+      maxStock: product.total_stock > 0 ? product.total_stock : undefined,
+    });
+
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
   return (
     <div
@@ -143,6 +168,41 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
               )}
             </div>
           )}
+
+          {/* Action Buttons: Add to Bag & WhatsApp */}
+          <div className="mt-3 pt-2.5 border-t border-[#F2ECE1] grid grid-cols-2 gap-1.5">
+            <button
+              type="button"
+              onClick={handleQuickAdd}
+              disabled={isOutOfStock}
+              className={`py-2 px-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1 transition-all rounded-xs ${
+                added
+                  ? 'bg-emerald-700 text-white'
+                  : 'bg-[#1A1A1A] hover:bg-black text-white active:scale-95'
+              } disabled:opacity-40 disabled:cursor-not-allowed`}
+            >
+              {added ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-white" />
+                  <span>Added</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  <span>{isOutOfStock ? 'Sold Out' : 'Add to Bag'}</span>
+                </>
+              )}
+            </button>
+
+            <WhatsAppButton
+              productName={product.name}
+              sku={product.sku}
+              price={product.effective_price}
+              variant="pill"
+              label="WhatsApp"
+              className="!py-2 !px-1 !rounded-xs !text-[10px] sm:!text-xs uppercase tracking-wider !font-semibold !justify-center shadow-2xs"
+            />
+          </div>
         </div>
       </div>
     </div>
