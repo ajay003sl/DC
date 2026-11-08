@@ -9,16 +9,18 @@ from app.core.config import settings
 from app.core.database import engine, Base, SessionLocal
 import app.models
 from app.models.user import User
+from app.models.setting import StoreSetting
+from app.models.category import Category
+from app.models.product import Product
 from app.core.security import get_password_hash
 from app.api.v1 import api_router
-from app.seed.seed_data import seed_database
 
 # Ensure uploads directory exists
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize tables and seed on startup in safe try/except blocks
+    # Initialize tables on startup in safe try/except block
     try:
         Base.metadata.create_all(bind=engine)
     except Exception as e:
@@ -39,15 +41,35 @@ async def lifespan(app: FastAPI):
             db.add(admin)
             db.commit()
             print("Guaranteed admin user initialized: admin@jershihafashion.com")
+
+        # 2. Guarantee basic store settings exist
+        setting = db.query(StoreSetting).first()
+        if not setting:
+            new_setting = StoreSetting(
+                store_name="Jershiha Fashion",
+                tagline="Curated Women's Fashion & Ethnic Couture",
+                whatsapp_number="919876543210",
+                phone="+91 98765 43210",
+                email="care@jershihafashion.com",
+                address="Indiranagar, Bangalore"
+            )
+            db.add(new_setting)
+            db.commit()
+
+        # 3. Clean up empty demo categories if leftover, ensuring 100% custom database
+        demo_slugs = ["kurtis", "sarees", "western-wear", "dresses", "tops", "ethnic-wear", "party-wear", "casual-wear"]
+        for slug in demo_slugs:
+            cat = db.query(Category).filter(Category.slug == slug).first()
+            if cat:
+                prod_count = db.query(Product).filter(Product.category_id == cat.id).count()
+                if prod_count == 0:
+                    db.delete(cat)
+                    print(f"Removed unused demo category: {slug}")
+        db.commit()
         db.close()
     except Exception as e:
-        print(f"Notice initializing admin: {e}")
+        print(f"Notice initializing startup requirements: {e}")
 
-    # 2. Seed remaining demo catalog
-    try:
-        seed_database()
-    except Exception as e:
-        print(f"Startup seeder notice: {e}")
     yield
 
 app = FastAPI(
