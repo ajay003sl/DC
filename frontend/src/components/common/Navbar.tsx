@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Menu, X, MessageCircle, Shield, Sparkles, ChevronDown } from 'lucide-react';
+import { Search, Menu, X, MessageCircle, Sparkles, ChevronDown } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
-import { useAuth } from '../../context/AuthContext';
 
 export const Navbar: React.FC = () => {
   const { categories, storeInfo } = useStore();
-  const { isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -165,16 +163,6 @@ export const Navbar: React.FC = () => {
               <MessageCircle className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600" />
               <span>WhatsApp Us</span>
             </a>
-
-            {/* Admin Portal link */}
-            <Link
-              to={isAuthenticated ? "/admin" : "/admin/login"}
-              className="p-2 text-[#8C827A] hover:text-boutique-charcoal transition-colors flex items-center gap-1 text-xs"
-              title={isAuthenticated ? "Admin Dashboard" : "Admin Login"}
-            >
-              <Shield className="w-4 h-4" />
-              <span className="hidden lg:inline">{isAuthenticated ? "Dashboard" : "Admin"}</span>
-            </Link>
           </div>
         </div>
 
@@ -248,24 +236,16 @@ export const Navbar: React.FC = () => {
           >
             Store Address & Hours
           </Link>
-          <div className="pt-2 flex items-center justify-between">
+          <div className="pt-2">
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium tracking-wide bg-emerald-600 text-white"
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-xs font-medium tracking-wide bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
             >
               <MessageCircle className="w-4 h-4 fill-white" />
               <span>WhatsApp Store</span>
             </a>
-            <Link
-              to={isAuthenticated ? "/admin" : "/admin/login"}
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-xs uppercase tracking-wider text-[#8C827A] flex items-center gap-1"
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>{isAuthenticated ? "Dashboard" : "Admin Login"}</span>
-            </Link>
           </div>
         </div>
       )}

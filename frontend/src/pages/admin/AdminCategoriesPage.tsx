@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, FolderTree, Check, X, AlertCircle, AlertTriangle, ArrowRight, ExternalLink } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Edit2, Trash2, FolderTree, Check, X, AlertCircle, AlertTriangle, ArrowRight, ExternalLink, Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Category } from '../../types';
 import { api } from '../../services/api';
 import { useStore } from '../../context/StoreContext';
@@ -13,13 +13,13 @@ export const AdminCategoriesPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Form State
+  // Form State (Slug & Description removed per store owner request)
   const [name, setName] = useState('');
-  const [slug, setSlug] = useState('');
-  const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [displayOrder, setDisplayOrder] = useState<number>(0);
   const [isActive, setIsActive] = useState<boolean>(true);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Proper Delete Modal State
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -45,11 +45,34 @@ export const AdminCategoriesPage: React.FC = () => {
     fetchCategories();
   }, []);
 
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file (PNG, JPG, WEBP, etc.)');
+      return;
+    }
+
+    setUploadingImage(true);
+    setError(null);
+
+    try {
+      const results = await api.admin.uploadImages([file]);
+      if (results && results.length > 0) {
+        setImageUrl(results[0].image_url);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload category image from local file');
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const openCreateModal = () => {
     setEditingCategory(null);
     setName('');
-    setSlug('');
-    setDescription('');
     setImageUrl('');
     setDisplayOrder(categories.length + 1);
     setIsActive(true);
@@ -60,8 +83,6 @@ export const AdminCategoriesPage: React.FC = () => {
   const openEditModal = (cat: Category) => {
     setEditingCategory(cat);
     setName(cat.name);
-    setSlug(cat.slug);
-    setDescription(cat.description || '');
     setImageUrl(cat.image_url || '');
     setDisplayOrder(cat.display_order);
     setIsActive(cat.is_active);
@@ -75,8 +96,6 @@ export const AdminCategoriesPage: React.FC = () => {
 
     const payload = {
       name: name.trim(),
-      slug: slug.trim() || undefined,
-      description: description.trim() || undefined,
       image_url: imageUrl.trim() || undefined,
       display_order: Number(displayOrder),
       is_active: isActive
@@ -519,47 +538,86 @@ export const AdminCategoriesPage: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Kurtis, Sarees, Western Wear"
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-[#EAE6E1] focus:outline-none"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-[#EAE6E1] focus:outline-none focus:border-boutique-charcoal"
                 />
               </div>
 
+              {/* Local File Upload for Category Image */}
               <div>
-                <label className="block text-xs uppercase tracking-wider font-semibold text-boutique-charcoal mb-1">
-                  Custom Slug (Optional)
+                <label className="block text-xs uppercase tracking-wider font-semibold text-boutique-charcoal mb-1.5">
+                  Category Image
                 </label>
+
+                {/* Hidden Local File Input */}
                 <input
-                  type="text"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  placeholder="auto-generated from name if left empty"
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-[#EAE6E1] font-mono focus:outline-none"
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*"
+                  onChange={handleImageFileChange}
+                  className="hidden"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs uppercase tracking-wider font-semibold text-boutique-charcoal mb-1">
-                  Banner Image URL
-                </label>
-                <input
-                  type="text"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-[#EAE6E1] focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs uppercase tracking-wider font-semibold text-boutique-charcoal mb-1">
-                  Short Description
-                </label>
-                <textarea
-                  rows={2}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Appears on public category header..."
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-[#EAE6E1] focus:outline-none"
-                />
+                {imageUrl ? (
+                  <div className="p-3 bg-[#FAF7F2] border border-[#EAE6E1] rounded-sm">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={imageUrl}
+                        alt="Category preview"
+                        className="w-20 h-16 object-cover border border-[#D5C4B0] bg-white shadow-xs rounded-sm flex-shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-boutique-charcoal truncate">Image Uploaded</p>
+                        <p className="text-[10px] text-[#8C827A] truncate mt-0.5">{imageUrl}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingImage}
+                            className="px-2.5 py-1 text-[11px] bg-white border border-[#D5C4B0] hover:bg-[#F5F2EB] text-boutique-charcoal font-medium rounded-xs transition-colors flex items-center gap-1.5"
+                          >
+                            <Upload className="w-3 h-3 text-[#B86B5A]" />
+                            <span>Change Image</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setImageUrl('')}
+                            className="px-2 py-1 text-[11px] text-red-600 hover:text-red-800 hover:bg-red-50 rounded-xs transition-colors"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => !uploadingImage && fileInputRef.current?.click()}
+                    className={`border-2 border-dashed border-[#D5C4B0] hover:border-boutique-charcoal hover:bg-[#FAF7F2]/60 p-6 text-center cursor-pointer transition-all rounded-sm ${
+                      uploadingImage ? 'opacity-60 pointer-events-none' : ''
+                    }`}
+                  >
+                    {uploadingImage ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="w-6 h-6 animate-spin text-[#B86B5A]" />
+                        <span className="text-xs text-boutique-charcoal font-medium">Uploading image from your device...</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-[#FAF7F2] border border-[#EAE6E1] flex items-center justify-center text-[#B86B5A]">
+                          <Upload className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-boutique-charcoal">
+                            Click to upload image from your computer / phone
+                          </p>
+                          <p className="text-[11px] text-[#8C827A] mt-0.5">
+                            Supports PNG, JPG, JPEG, WEBP
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
