@@ -21,6 +21,7 @@ export const ProductDetailPage: React.FC = () => {
   const [selectedColour, setSelectedColour] = useState<string>('');
   const [copiedLink, setCopiedLink] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [addedToBag, setAddedToBag] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -110,6 +111,8 @@ export const ProductDetailPage: React.FC = () => {
       quantity: 1,
       maxStock: stockQuantity > 0 ? stockQuantity : undefined
     });
+    setAddedToBag(true);
+    setTimeout(() => setAddedToBag(false), 2500);
   };
 
   return (
@@ -307,10 +310,23 @@ export const ProductDetailPage: React.FC = () => {
                   type="button"
                   onClick={handleAddToBag}
                   disabled={isOutOfStock}
-                  className="w-full py-4 bg-[#1A1A1A] hover:bg-black text-white text-xs tracking-luxury uppercase font-semibold flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`w-full py-4 text-xs tracking-luxury uppercase font-semibold flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed ${
+                    addedToBag
+                      ? 'bg-emerald-700 text-white'
+                      : 'bg-[#1A1A1A] hover:bg-black text-white'
+                  }`}
                 >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>{isOutOfStock ? 'Sold Out' : 'Add to Shopping Bag'}</span>
+                  {addedToBag ? (
+                    <>
+                      <Check className="w-4 h-4 text-white" />
+                      <span>Added to Shopping Bag!</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-4 h-4" />
+                      <span>{isOutOfStock ? 'Sold Out' : 'Add to Shopping Bag'}</span>
+                    </>
+                  )}
                 </button>
 
                 <WhatsAppButton
@@ -386,10 +402,23 @@ export const ProductDetailPage: React.FC = () => {
           type="button"
           onClick={handleAddToBag}
           disabled={isOutOfStock}
-          className="flex-1 py-3 bg-[#1A1A1A] hover:bg-black text-white text-[11px] uppercase tracking-wider font-semibold flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
+          className={`flex-1 py-3 text-[11px] uppercase tracking-wider font-semibold flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50 transition-colors ${
+            addedToBag
+              ? 'bg-emerald-700 text-white'
+              : 'bg-[#1A1A1A] hover:bg-black text-white'
+          }`}
         >
-          <ShoppingBag className="w-3.5 h-3.5" />
-          <span>Add to Bag</span>
+          {addedToBag ? (
+            <>
+              <Check className="w-3.5 h-3.5 text-white" />
+              <span>Added!</span>
+            </>
+          ) : (
+            <>
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>Add to Bag</span>
+            </>
+          )}
         </button>
 
         <WhatsAppButton

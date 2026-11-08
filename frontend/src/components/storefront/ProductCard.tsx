@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, MessageCircle, Sparkles, Heart } from 'lucide-react';
+import { Eye, MessageCircle, Sparkles } from 'lucide-react';
 import { ProductCard as ProductCardType } from '../../types';
 import { formatPrice } from '../../utils/format';
 import { WhatsAppButton } from '../common/WhatsAppButton';
-import { useWishlist } from '../../context/WishlistContext';
 
 interface ProductCardProps {
   product: ProductCardType;
@@ -13,9 +12,6 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const { isInWishlist, toggleWishlist } = useWishlist();
-
-  const isFavorited = isInWishlist(product.id);
 
   const primaryImage = product.primary_image_url || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80';
   const secondaryImage = product.images.length > 1 ? product.images[1].image_url : primaryImage;
@@ -55,24 +51,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
             </span>
           )}
         </div>
-
-        {/* Wishlist / Save for Trial Button */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleWishlist(product);
-          }}
-          className={`absolute top-2 right-2 z-20 p-1.5 rounded-full transition-all duration-200 ${
-            isFavorited
-              ? 'bg-white text-red-500 shadow-md scale-110'
-              : 'bg-white/80 text-gray-500 hover:text-red-500 hover:bg-white'
-          }`}
-          title={isFavorited ? 'Remove from saved' : 'Save for in-store trial'}
-          aria-label="Save for in-store trial"
-        >
-          <Heart className={`w-3.5 h-3.5 ${isFavorited ? 'fill-red-500' : ''}`} />
-        </button>
 
         {/* Stock overlays */}
         {isOutOfStock ? (

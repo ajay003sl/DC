@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { X, ShoppingBag, Trash2, Plus, Minus, MessageCircle, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { X, ShoppingBag, Trash2, Plus, Minus, MessageCircle, ArrowLeft, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useStore } from '../../context/StoreContext';
 import { formatPrice } from '../../utils/format';
@@ -11,6 +11,30 @@ export const CartDrawer: React.FC = () => {
 
   const [customerName, setCustomerName] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
+
+  // Lock background scroll on mobile and desktop when cart drawer is open
+  useEffect(() => {
+    if (isCartOpen) {
+      const scrollY = window.scrollY;
+      const originalOverflow = document.body.style.overflow;
+      const originalPosition = document.body.style.position;
+      const originalTop = document.body.style.top;
+      const originalWidth = document.body.style.width;
+
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        document.body.style.position = originalPosition;
+        document.body.style.top = originalTop;
+        document.body.style.width = originalWidth;
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isCartOpen]);
 
   if (!isCartOpen) return null;
 
@@ -42,8 +66,16 @@ export const CartDrawer: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end animate-fadeIn">
-      <div className="w-full max-w-md bg-white h-full flex flex-col justify-between shadow-2xl animate-slideLeft">
+    <div
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end animate-fadeIn touch-none overscroll-none"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) closeCart();
+      }}
+    >
+      <div
+        className="w-full max-w-md bg-white h-full flex flex-col justify-between shadow-2xl animate-slideLeft overscroll-contain touch-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Drawer Header */}
         <div className="p-4 sm:p-5 border-b border-[#EAE6E1] flex items-center justify-between bg-[#FDFBF7]">
           <div className="flex items-center gap-2.5">
@@ -72,16 +104,17 @@ export const CartDrawer: React.FC = () => {
             )}
             <button
               onClick={closeCart}
-              className="p-1.5 text-[#8C827A] hover:text-black transition-colors rounded-full hover:bg-[#FAF7F2]"
-              aria-label="Close Shopping Bag"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-boutique-charcoal bg-[#FAF7F2] border border-[#EAE6E1] hover:bg-[#EAE6E1] transition-colors"
+              aria-label="Continue Shopping"
             >
-              <X className="w-5 h-5" />
+              <span>Continue Shopping</span>
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Drawer Body */}
-        <div className="p-4 sm:p-5 flex-1 overflow-y-auto space-y-4 divide-y divide-[#F0ECE1]">
+        <div className="p-4 sm:p-5 flex-1 overflow-y-auto overscroll-contain space-y-4 divide-y divide-[#F0ECE1]">
           {items.length === 0 ? (
             <div className="text-center py-20 space-y-4">
               <div className="w-16 h-16 rounded-full bg-[#FAF7F2] border border-[#EAE6E1] flex items-center justify-center mx-auto text-[#8C827A]">
@@ -216,9 +249,9 @@ export const CartDrawer: React.FC = () => {
           )}
         </div>
 
-        {/* Drawer Footer with Subtotal & WhatsApp Checkout */}
+        {/* Drawer Footer with Subtotal, WhatsApp Checkout & Continue Shopping */}
         {items.length > 0 && (
-          <div className="p-4 sm:p-5 border-t border-[#EAE6E1] bg-[#FDFBF7] space-y-3.5 shadow-lg">
+          <div className="p-4 sm:p-5 border-t border-[#EAE6E1] bg-[#FDFBF7] space-y-3 shadow-lg">
             <div className="space-y-1.5 text-xs">
               <div className="flex justify-between text-[#8C827A]">
                 <span>Total Items</span>
@@ -234,6 +267,7 @@ export const CartDrawer: React.FC = () => {
               </div>
             </div>
 
+            {/* Primary Action: Place Order via WhatsApp */}
             <button
               type="button"
               onClick={handleWhatsAppCheckout}
@@ -243,7 +277,17 @@ export const CartDrawer: React.FC = () => {
               <span>Place Order via WhatsApp ({formatPrice(totalPrice)})</span>
             </button>
 
-            <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#8C827A]">
+            {/* Secondary Action: Continue Shopping */}
+            <button
+              type="button"
+              onClick={closeCart}
+              className="w-full py-3 bg-white hover:bg-[#FAF7F2] text-boutique-charcoal border border-[#D5C4B0] text-xs uppercase tracking-luxury font-semibold flex items-center justify-center gap-2 transition-colors active:scale-[0.99] shadow-2xs"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Continue Shopping</span>
+            </button>
+
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#8C827A] pt-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
               <span>Direct WhatsApp confirmation with store owner</span>
             </div>

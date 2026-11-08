@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, Clock, MessageCircle, Heart } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, MessageCircle, Sparkles } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
 export const Footer: React.FC = () => {
@@ -113,10 +113,9 @@ export const Footer: React.FC = () => {
         {/* Bottom divider and copyright */}
         <div className="pt-8 border-t border-[#2B2B2B] flex flex-col sm:flex-row items-center justify-between text-xs text-[#8C827A] gap-4">
           <p>© {new Date().getFullYear()} Jershiha Fashion Boutique. All rights reserved. Physical store catalog showcase.</p>
-          <p className="flex items-center gap-1">
-            <span>Crafted with</span>
-            <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" />
-            <span>for elegance & bespoke fashion</span>
+          <p className="flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>Crafted for elegance & bespoke fashion</span>
           </p>
         </div>
       </div>

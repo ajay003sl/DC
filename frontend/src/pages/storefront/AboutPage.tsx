@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Heart, Scissors, Clock, MapPin, ArrowRight, ShoppingBag, MessageCircle } from 'lucide-react';
+import { Sparkles, Scissors, Clock, MapPin, ArrowRight, ShoppingBag, MessageCircle } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
 export const AboutPage: React.FC = () => {
@@ -107,8 +107,8 @@ export const AboutPage: React.FC = () => {
           </div>
 
           <div className="p-7 bg-white border border-[#EAE6E1] text-center shadow-sm">
-            <div className="w-12 h-12 rounded-full bg-[#FAF7F2] text-emerald-700 flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-full bg-[#FAF7F2] text-amber-600 flex items-center justify-center mx-auto mb-4">
+              <Sparkles className="w-6 h-6" />
             </div>
             <h3 className="font-serif text-lg font-medium text-boutique-charcoal mb-2">Friendly In-Store Experience</h3>
             <p className="text-xs text-[#6B6B6B] leading-relaxed">
