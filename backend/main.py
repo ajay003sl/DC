@@ -18,8 +18,11 @@ os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize tables and seed on startup
-    Base.metadata.create_all(bind=engine)
+    # Initialize tables and seed on startup in safe try/except blocks
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"Startup schema notice: {e}")
     
     # 1. Guarantee admin exists with immediate commit
     try:
@@ -69,13 +72,17 @@ app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads"
 # Include API v1 router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-@app.get("/api/health", tags=["Health"])
+@app.api_route("/api/health", methods=["GET", "HEAD"], tags=["Health"])
 def health_check():
     return {
         "status": "healthy",
         "service": settings.PROJECT_NAME,
         "database": "connected"
     }
+
+@app.head("/", tags=["Health"])
+def head_root():
+    return {}
 
 # If frontend build exists, serve static assets and SPA fallback
 frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
@@ -84,7 +91,7 @@ if os.path.exists(frontend_dist):
     if os.path.exists(assets_dir):
         app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
-    @app.get("/{full_path:path}")
+    @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
     async def serve_spa(full_path: str):
         # Allow API and upload calls to pass through
         if full_path.startswith("api") or full_path.startswith("uploads"):
