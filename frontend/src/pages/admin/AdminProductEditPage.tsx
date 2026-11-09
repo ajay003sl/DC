@@ -49,9 +49,7 @@ export const AdminProductEditPage: React.FC = () => {
   const [newImageUrl, setNewImageUrl] = useState('');
 
   const [variants, setVariants] = useState<ProductVariant[]>([
-    { size: 'S', colour: 'Rose Gold', colour_hex: '#FFFFFF', stock_quantity: 4 },
-    { size: 'M', colour: 'Rose Gold', colour_hex: '#FFFFFF', stock_quantity: 6 },
-    { size: 'L', colour: 'Rose Gold', colour_hex: '#FFFFFF', stock_quantity: 3 },
+    { size: 'Free Size', colour: 'Standard', colour_hex: '#FFFFFF', stock_quantity: 5 }
   ]);
 
   // Load categories and product data if editing
@@ -139,23 +137,47 @@ export const AdminProductEditPage: React.FC = () => {
     setImages(updated);
   };
 
+  // Size Constants
+  const STANDARD_LETTER_SIZES = ['Free Size', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'];
+  const NUMERIC_SIZES = ['26', '28', '30', '32', '34', '36', '38', '40', '42', '44', '46', '48'];
+  const BOUTIQUE_SIZES = ['Unstitched', 'Semi-Stitched'];
+  const ALL_PRESET_SIZES = [...STANDARD_LETTER_SIZES, ...NUMERIC_SIZES, ...BOUTIQUE_SIZES];
+
   // Variant actions
-  const handleAddVariantRow = () => {
+  const handleAddVariantRow = (defaultSize: string = 'Free Size', colour: string = 'Standard') => {
     setVariants([
       ...variants,
-      { size: 'M', colour: 'Standard', colour_hex: '#FFFFFF', stock_quantity: 5 }
+      { size: defaultSize, colour, colour_hex: '#FFFFFF', stock_quantity: 5 }
     ]);
   };
 
-  const handleQuickAddSizes = (colour: string = 'Standard') => {
-    const stdSizes = ['XS', 'S', 'M', 'L', 'XL'];
+  const handleQuickAddLetterSizes = (colour: string = 'Standard') => {
+    const stdSizes = ['S', 'M', 'L', 'XL'];
     const newVars = stdSizes.map((s) => ({
       size: s,
       colour,
       colour_hex: '#FFFFFF',
-      stock_quantity: 4
+      stock_quantity: 5
     }));
     setVariants([...variants, ...newVars]);
+  };
+
+  const handleQuickAddNumericSizes = (colour: string = 'Standard') => {
+    const numSizes = ['30', '32', '34', '36', '38'];
+    const newVars = numSizes.map((s) => ({
+      size: s,
+      colour,
+      colour_hex: '#FFFFFF',
+      stock_quantity: 5
+    }));
+    setVariants([...variants, ...newVars]);
+  };
+
+  const handleQuickAddFreeSize = (colour: string = 'Standard') => {
+    setVariants([
+      ...variants,
+      { size: 'Free Size', colour, colour_hex: '#FFFFFF', stock_quantity: 10 }
+    ]);
   };
 
   const handleVariantChange = (index: number, field: keyof ProductVariant, val: any) => {
@@ -482,18 +504,35 @@ export const AdminProductEditPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
-                onClick={() => handleQuickAddSizes('Standard')}
-                className="px-3 py-1.5 bg-[#FAF7F2] border border-[#D5C4B0] text-[11px] uppercase tracking-wider font-medium text-boutique-charcoal hover:bg-[#F2ECE1]"
+                onClick={() => handleQuickAddLetterSizes('Standard')}
+                className="px-2.5 py-1.5 bg-[#FAF7F2] border border-[#D5C4B0] text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-boutique-charcoal hover:bg-[#F2ECE1] transition-colors"
+                title="Quickly add standard letter sizes: S, M, L, XL"
               >
-                + XS-XL Quick Add
+                + S, M, L, XL
               </button>
               <button
                 type="button"
-                onClick={handleAddVariantRow}
-                className="px-3 py-1.5 bg-[#1A1A1A] hover:bg-black text-white text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5"
+                onClick={() => handleQuickAddNumericSizes('Standard')}
+                className="px-2.5 py-1.5 bg-[#FAF7F2] border border-[#D5C4B0] text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-boutique-charcoal hover:bg-[#F2ECE1] transition-colors"
+                title="Quickly add numeric sizes: 30, 32, 34, 36, 38"
+              >
+                + 30, 32, 34, 36, 38
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickAddFreeSize('Standard')}
+                className="px-2.5 py-1.5 bg-[#FAF7F2] border border-[#D5C4B0] text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-boutique-charcoal hover:bg-[#F2ECE1] transition-colors"
+                title="Add a Free Size dress row"
+              >
+                + Free Size
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAddVariantRow()}
+                className="px-3 py-1.5 bg-[#1A1A1A] hover:bg-black text-white text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1 shadow-2xs"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Row</span>
@@ -505,30 +544,61 @@ export const AdminProductEditPage: React.FC = () => {
             <table className="w-full text-left text-xs">
               <thead className="bg-[#FAF7F2] text-[#8C827A] uppercase tracking-wider border-b border-[#EAE6E1]">
                 <tr>
-                  <th className="py-2.5 px-3">Size</th>
+                  <th className="py-2.5 px-3">Size (Letter / Numeric)</th>
                   <th className="py-2.5 px-3">Colour Name</th>
                   <th className="py-2.5 px-3">In-Store Stock Quantity</th>
                   <th className="py-2.5 px-3 text-right">Remove</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F0ECE1]">
-                {variants.map((v, idx) => (
-                  <tr key={idx} className="hover:bg-[#FAF7F2]/50">
-                    <td className="py-2 px-3">
-                      <select
-                        value={v.size}
-                        onChange={(e) => handleVariantChange(idx, 'size', e.target.value)}
-                        className="px-2.5 py-1.5 bg-white border border-[#D5C4B0] text-xs font-semibold"
-                      >
-                        <option value="XS">XS</option>
-                        <option value="S">S</option>
-                        <option value="M">M</option>
-                        <option value="L">L</option>
-                        <option value="XL">XL</option>
-                        <option value="XXL">XXL</option>
-                        <option value="Free Size">Free Size</option>
-                      </select>
-                    </td>
+                {variants.map((v, idx) => {
+                  const isPreset = ALL_PRESET_SIZES.includes(v.size);
+                  return (
+                    <tr key={idx} className="hover:bg-[#FAF7F2]/50">
+                      <td className="py-2 px-3">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <select
+                            value={isPreset ? v.size : 'CUSTOM'}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === 'CUSTOM') {
+                                handleVariantChange(idx, 'size', '');
+                              } else {
+                                handleVariantChange(idx, 'size', val);
+                              }
+                            }}
+                            className="px-2.5 py-1.5 bg-white border border-[#D5C4B0] text-xs font-semibold focus:outline-none focus:border-boutique-charcoal"
+                          >
+                            <optgroup label="Standard Letter Sizes (S, M, L...)">
+                              {STANDARD_LETTER_SIZES.map((s) => (
+                                <option key={s} value={s}>{s}</option>
+                              ))}
+                            </optgroup>
+                            <optgroup label="Numeric Sizes (30, 32, 34, 36...)">
+                              {NUMERIC_SIZES.map((n) => (
+                                <option key={n} value={n}>{n}</option>
+                              ))}
+                            </optgroup>
+                            <optgroup label="Boutique Fabric Fit">
+                              {BOUTIQUE_SIZES.map((b) => (
+                                <option key={b} value={b}>{b}</option>
+                              ))}
+                            </optgroup>
+                            <option value="CUSTOM">Custom / Other Size...</option>
+                          </select>
+
+                          {(!isPreset || v.size === '') && (
+                            <input
+                              type="text"
+                              value={v.size}
+                              onChange={(e) => handleVariantChange(idx, 'size', e.target.value)}
+                              placeholder="Type size..."
+                              className="w-24 px-2 py-1.5 bg-white border border-[#D5C4B0] text-xs font-semibold focus:outline-none focus:border-boutique-charcoal"
+                              autoFocus
+                            />
+                          )}
+                        </div>
+                      </td>
 
                     <td className="py-2 px-3">
                       <input
@@ -561,7 +631,8 @@ export const AdminProductEditPage: React.FC = () => {
                       </button>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
               </tbody>
             </table>
           </div>

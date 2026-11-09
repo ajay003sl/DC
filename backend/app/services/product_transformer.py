@@ -6,8 +6,24 @@ from app.schemas.image import ImageOut
 from app.schemas.variant import VariantOut
 from app.schemas.offer import OfferOut
 
+SIZE_RANK = {
+    "FREE SIZE": 0, "FREE": 0, "ONESIZE": 0,
+    "XXS": 1, "XS": 2, "S": 3, "M": 4, "L": 5, "XL": 6, "XXL": 7, "2XL": 7, "3XL": 8, "4XL": 9, "5XL": 10,
+    "UNSTITCHED": 90, "SEMI-STITCHED": 91
+}
+
+def natural_size_sort_key(s: str):
+    clean = s.strip().upper()
+    if clean in SIZE_RANK:
+        return (0, SIZE_RANK[clean], "")
+    try:
+        return (1, float(clean), "")
+    except ValueError:
+        return (2, 0, clean)
+
 def product_to_card_out(prod: Product) -> ProductCardOut:
-    sizes = sorted(list({v.size for v in prod.variants if v.size}))
+    raw_sizes = list({v.size for v in prod.variants if v.size})
+    sizes = sorted(raw_sizes, key=natural_size_sort_key)
     colours = sorted(list({v.colour for v in prod.variants if v.colour}))
     primary_img = prod.primary_image_url
     

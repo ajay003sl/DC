@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Sparkles, Search, X, ChevronLeft, ChevronRight, SlidersHorizontal, MessageCircle, ShoppingBag } from 'lucide-react';
+import { Sparkles, Search, X, ChevronLeft, ChevronRight, ChevronDown, SlidersHorizontal, MessageCircle, ShoppingBag } from 'lucide-react';
 import { ProductCard as ProductCardType, ProductListResponse } from '../../types';
 import { api } from '../../services/api';
 import { useStore } from '../../context/StoreContext';
@@ -104,6 +104,7 @@ export const HomePage: React.FC = () => {
 
   const currentCategoryObj = categories.find((c) => c.slug === selectedCategory);
   const activeCategoryName = currentCategoryObj ? currentCategoryObj.name : 'All Dresses';
+  const totalCatalogCount = categories.reduce((sum, c) => sum + (c.product_count || 0), 0);
 
   return (
     <div className="min-h-screen bg-[#FDFBF7]">
@@ -149,72 +150,111 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. Visual Category Selector Section */}
-      <section className="bg-white border-b border-[#EAE6E1] py-4 sticky top-16 sm:top-20 z-30 shadow-2xs">
+      {/* 2. Category Selector Section (Dropdown on Mobile, Tabs on Desktop) */}
+      <section className="bg-white border-b border-[#EAE6E1] py-3.5 sm:py-4 sticky top-16 sm:top-20 z-30 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] uppercase tracking-wider font-semibold text-[#8C827A]">
-              Browse Categories:
-            </span>
-            {selectedCategory && (
+          
+          {/* Mobile Category Dropdown View (< sm) */}
+          <div className="sm:hidden">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] uppercase tracking-wider font-semibold text-[#8C827A] flex items-center gap-1">
+                <span>Select Category:</span>
+              </span>
+              {selectedCategory && (
+                <button
+                  type="button"
+                  onClick={() => handleCategorySelect('')}
+                  className="text-[11px] text-boutique-terracotta hover:underline font-semibold"
+                >
+                  View All ({totalCatalogCount || totalProducts})
+                </button>
+              )}
+            </div>
+
+            <div className="relative">
+              <select
+                value={selectedCategory}
+                onChange={(e) => handleCategorySelect(e.target.value)}
+                className="w-full appearance-none bg-[#FAF7F2] border-2 border-[#D5C4B0] text-boutique-charcoal text-xs font-semibold py-3 pl-3.5 pr-10 rounded-none focus:outline-none focus:border-boutique-charcoal shadow-2xs"
+                aria-label="Filter by Category"
+              >
+                <option value="">
+                  All Designs ({totalCatalogCount || totalProducts})
+                </option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.slug}>
+                    {cat.name} ({cat.product_count || 0})
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-boutique-charcoal">
+                <ChevronDown className="w-4 h-4" />
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Category Tabs View (>= sm) */}
+          <div className="hidden sm:block">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] uppercase tracking-wider font-semibold text-[#8C827A]">
+                Browse Categories:
+              </span>
+              {selectedCategory && (
+                <button
+                  onClick={() => handleCategorySelect('')}
+                  className="text-[11px] text-boutique-terracotta hover:underline font-medium"
+                >
+                  View All Categories ({totalCatalogCount || totalProducts})
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1.5 scrollbar-none no-scrollbar">
+              {/* All Designs Tab */}
               <button
                 onClick={() => handleCategorySelect('')}
-                className="text-[11px] text-boutique-terracotta hover:underline font-medium"
+                className={`flex-shrink-0 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-2 rounded-xs border ${
+                  selectedCategory === ''
+                    ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-xs'
+                    : 'bg-[#FAF7F2] text-boutique-charcoal border-[#EAE6E1] hover:border-[#D5C4B0] hover:bg-white'
+                }`}
               >
-                View All Categories
-              </button>
-            )}
-          </div>
-
-          {/* Category Tabs (Scrollable on Mobile) */}
-          <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1.5 scrollbar-none no-scrollbar">
-            {/* All Designs Tab */}
-            <button
-              onClick={() => handleCategorySelect('')}
-              className={`flex-shrink-0 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-2 rounded-xs border ${
-                selectedCategory === ''
-                  ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-xs'
-                  : 'bg-[#FAF7F2] text-boutique-charcoal border-[#EAE6E1] hover:border-[#D5C4B0] hover:bg-white'
-              }`}
-            >
-              <span>All Designs</span>
-              {selectedCategory === '' && totalProducts > 0 && (
-                <span className="px-1.5 py-0.2 bg-white/20 text-white text-[10px] rounded-full">
-                  {totalProducts}
+                <span>All Designs</span>
+                <span className={`px-1.5 py-0.2 text-[10px] rounded-full ${selectedCategory === '' ? 'bg-white/20 text-white' : 'bg-[#EAE6E1] text-[#8C827A]'}`}>
+                  {totalCatalogCount || totalProducts}
                 </span>
-              )}
-            </button>
+              </button>
 
-            {/* Dynamic Category Tabs */}
-            {categories.map((cat) => {
-              const isSelected = selectedCategory === cat.slug;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => handleCategorySelect(cat.slug)}
-                  className={`flex-shrink-0 px-3.5 py-2 text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-2.5 rounded-xs border ${
-                    isSelected
-                      ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-xs'
-                      : 'bg-[#FAF7F2] text-boutique-charcoal border-[#EAE6E1] hover:border-[#D5C4B0] hover:bg-white'
-                  }`}
-                >
-                  {cat.image_url && (
-                    <img
-                      src={cat.image_url}
-                      alt={cat.name}
-                      className="w-4 h-4 rounded-full object-cover border border-white/40 flex-shrink-0"
-                    />
-                  )}
-                  <span>{cat.name}</span>
-                  {cat.product_count !== undefined && cat.product_count > 0 && (
+              {/* Dynamic Category Tabs */}
+              {categories.map((cat) => {
+                const isSelected = selectedCategory === cat.slug;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleCategorySelect(cat.slug)}
+                    className={`flex-shrink-0 px-3.5 py-2 text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-2.5 rounded-xs border ${
+                      isSelected
+                        ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-xs'
+                        : 'bg-[#FAF7F2] text-boutique-charcoal border-[#EAE6E1] hover:border-[#D5C4B0] hover:bg-white'
+                    }`}
+                  >
+                    {cat.image_url && (
+                      <img
+                        src={cat.image_url}
+                        alt={cat.name}
+                        className="w-4 h-4 rounded-full object-cover border border-white/40 flex-shrink-0"
+                      />
+                    )}
+                    <span>{cat.name}</span>
                     <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-[#EAE6E1] text-[#8C827A]'}`}>
-                      {cat.product_count}
+                      {cat.product_count || 0}
                     </span>
-                  )}
-                </button>
-              );
-            })}
+                  </button>
+                );
+              })}
+            </div>
           </div>
+
         </div>
       </section>
 

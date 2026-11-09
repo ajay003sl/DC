@@ -35,12 +35,12 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ isOpen, onClose 
   if (!isOpen) return null;
 
   const sizeChart = [
-    { size: 'XS', bustIn: '32"', waistIn: '26"', hipIn: '35"', lengthIn: '44"', bustCm: '81 cm', waistCm: '66 cm', hipCm: '89 cm', lengthCm: '112 cm' },
-    { size: 'S', bustIn: '34"', waistIn: '28"', hipIn: '37"', lengthIn: '45"', bustCm: '86 cm', waistCm: '71 cm', hipCm: '94 cm', lengthCm: '114 cm' },
-    { size: 'M', bustIn: '36"', waistIn: '30"', hipIn: '39"', lengthIn: '45.5"', bustCm: '91 cm', waistCm: '76 cm', hipCm: '99 cm', lengthCm: '116 cm' },
-    { size: 'L', bustIn: '38"', waistIn: '32"', hipIn: '41"', lengthIn: '46"', bustCm: '97 cm', waistCm: '81 cm', hipCm: '104 cm', lengthCm: '117 cm' },
-    { size: 'XL', bustIn: '40"', waistIn: '34"', hipIn: '43"', lengthIn: '46.5"', bustCm: '102 cm', waistCm: '86 cm', hipCm: '109 cm', lengthCm: '118 cm' },
-    { size: 'XXL', bustIn: '42"', waistIn: '36"', hipIn: '45"', lengthIn: '47"', bustCm: '107 cm', waistCm: '91 cm', hipCm: '114 cm', lengthCm: '119 cm' },
+    { size: 'XS (32)', bustIn: '32"', waistIn: '26"', hipIn: '35"', lengthIn: '44"', bustCm: '81 cm', waistCm: '66 cm', hipCm: '89 cm', lengthCm: '112 cm' },
+    { size: 'S (34)', bustIn: '34"', waistIn: '28"', hipIn: '37"', lengthIn: '45"', bustCm: '86 cm', waistCm: '71 cm', hipCm: '94 cm', lengthCm: '114 cm' },
+    { size: 'M (36)', bustIn: '36"', waistIn: '30"', hipIn: '39"', lengthIn: '45.5"', bustCm: '91 cm', waistCm: '76 cm', hipCm: '99 cm', lengthCm: '116 cm' },
+    { size: 'L (38)', bustIn: '38"', waistIn: '32"', hipIn: '41"', lengthIn: '46"', bustCm: '97 cm', waistCm: '81 cm', hipCm: '104 cm', lengthCm: '117 cm' },
+    { size: 'XL (40)', bustIn: '40"', waistIn: '34"', hipIn: '43"', lengthIn: '46.5"', bustCm: '102 cm', waistCm: '86 cm', hipCm: '109 cm', lengthCm: '118 cm' },
+    { size: 'XXL (42)', bustIn: '42"', waistIn: '36"', hipIn: '45"', lengthIn: '47"', bustCm: '107 cm', waistCm: '91 cm', hipCm: '114 cm', lengthCm: '119 cm' },
     { size: 'Free Size', bustIn: '32"-40"', waistIn: '26"-34"', hipIn: '35"-44"', lengthIn: 'Varies', bustCm: '81-102 cm', waistCm: '66-86 cm', hipCm: '89-112 cm', lengthCm: 'Varies' },
   ];
 
@@ -98,7 +98,7 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ isOpen, onClose 
           <table className="w-full text-left text-xs">
             <thead className="bg-[#FAF7F2] text-[#8C827A] uppercase tracking-wider border-b border-[#EAE6E1]">
               <tr>
-                <th className="py-2.5 px-3">Size</th>
+                <th className="py-2.5 px-3">Size (Letter / Numeric)</th>
                 <th className="py-2.5 px-3">Bust</th>
                 <th className="py-2.5 px-3">Waist</th>
                 <th className="py-2.5 px-3">Hip</th>
