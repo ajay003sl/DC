@@ -14,8 +14,11 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [added, setAdded] = useState(false);
-  const { addItem } = useCart();
+  const { items, addItem } = useCart();
   const { storeInfo } = useStore();
+
+  const defaultSize = product.variants?.find(v => v.stock_quantity > 0)?.size || product.available_sizes?.[0] || 'Free Size';
+  const [selectedSize, setSelectedSize] = useState<string>(defaultSize);
 
   const primaryImage = product.primary_image_url || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80';
   const secondaryImage = product.images.length > 1 ? product.images[1].image_url : primaryImage;
@@ -23,10 +26,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
   const isOutOfStock = product.total_stock === 0;
   const isLowStock = product.total_stock > 0 && product.total_stock <= 3;
 
+  // Exact stock for selected size
+  const selectedVariant = product.variants?.find(
+    v => (v.size || '').trim().toUpperCase() === (selectedSize || '').trim().toUpperCase()
+  );
+  const sizeStock = selectedVariant ? selectedVariant.stock_quantity : product.total_stock;
+  const isSelectedSizeOutOfStock = sizeStock <= 0;
+
+  // Check how many of this product and size are in bag
+  const bagItem = items.find(
+    i => i.productId === product.id &&
+         (i.size || '').trim().toUpperCase() === (selectedSize || '').trim().toUpperCase()
+  );
+  const alreadyInBag = bagItem ? bagItem.quantity : 0;
+  const remainingCanAdd = Math.max(0, sizeStock - alreadyInBag);
+  const isMaxInBag = sizeStock > 0 && remainingCanAdd === 0;
+
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isOutOfStock) return;
+    if (isOutOfStock || isSelectedSizeOutOfStock || remainingCanAdd <= 0) return;
 
     addItem({
       productId: product.id,
@@ -35,10 +54,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
       slug: product.slug,
       price: product.effective_price,
       imageUrl: primaryImage,
-      size: product.available_sizes?.[0] || 'Free Size',
+      size: selectedSize,
       colour: product.available_colours?.[0] || 'Standard',
       quantity: 1,
-      maxStock: product.total_stock > 0 ? product.total_stock : undefined,
+      maxStock: sizeStock > 0 ? sizeStock : undefined,
     });
 
     setAdded(true);
@@ -72,6 +91,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           <img
             src={isHovered && secondaryImage ? secondaryImage : primaryImage}
             alt={product.name}
+            onError={(e) => {
+              const target = e.currentTarget;
+              target.onerror = null;
+              target.src = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80';
+            }}
             className="w-full h-full object-cover object-top transition-all duration-700 ease-out group-hover:scale-105"
             loading="lazy"
           />
@@ -168,21 +192,43 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
             )}
           </div>
 
-          {/* Available Sizes preview */}
+          {/* Available Sizes interactive selector */}
           {product.available_sizes && product.available_sizes.length > 0 && (
-            <div className="flex items-center gap-1 flex-wrap pt-1 border-t border-[#F2ECE1]">
-              <span className="text-[9px] text-[#8C827A] uppercase tracking-wider mr-0.5">Sizes:</span>
-              {product.available_sizes.slice(0, 4).map((s) => (
-                <span
-                  key={s}
-                  className="px-1 py-0.2 text-[8px] sm:text-[9px] bg-[#FAF7F2] border border-[#EAE6E1] text-boutique-charcoal font-medium"
-                >
-                  {s}
-                </span>
-              ))}
-              {product.available_sizes.length > 4 && (
-                <span className="text-[8px] text-[#8C827A]">+{product.available_sizes.length - 4}</span>
-              )}
+            <div className="flex items-center gap-1.5 flex-wrap pt-1.5 border-t border-[#F2ECE1]">
+              <span className="text-[9px] text-[#8C827A] uppercase tracking-wider mr-0.5">Size:</span>
+              {product.available_sizes.map((s) => {
+                const isSelected = selectedSize === s;
+                const vMatch = product.variants?.find(
+                  v => (v.size || '').trim().toUpperCase() === (s || '').trim().toUpperCase()
+                );
+                const sStock = vMatch ? vMatch.stock_quantity : product.total_stock;
+                const isSoldOut = sStock <= 0;
+
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (!isSoldOut) {
+                        setSelectedSize(s);
+                      }
+                    }}
+                    disabled={isSoldOut}
+                    className={`px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold border transition-all ${
+                      isSelected
+                        ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-xs'
+                        : isSoldOut
+                          ? 'bg-gray-100 text-gray-400 border-gray-200 line-through cursor-not-allowed'
+                          : 'bg-[#FAF7F2] text-boutique-charcoal border-[#D5C4B0] hover:border-[#1A1A1A]'
+                    }`}
+                    title={isSoldOut ? `${s} (Sold Out)` : `${s} (${sStock} available)`}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -191,7 +237,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
             <button
               type="button"
               onClick={handleQuickAdd}
-              disabled={isOutOfStock}
+              disabled={isOutOfStock || isSelectedSizeOutOfStock || isMaxInBag}
               className={`flex-1 h-9 px-2 text-[10px] sm:text-xs uppercase tracking-[0.14em] font-medium flex items-center justify-center gap-1.5 transition-all duration-200 border ${
                 added
                   ? 'bg-[#1E3F20] text-white border-[#1E3F20]'
@@ -201,12 +247,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
               {added ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-[#D4AF37]" />
-                  <span>Added</span>
+                  <span>Added ({selectedSize})</span>
                 </>
+              ) : isSelectedSizeOutOfStock ? (
+                <span>Sold Out ({selectedSize})</span>
+              ) : isMaxInBag ? (
+                <span>All {sizeStock} in Bag</span>
               ) : (
                 <>
                   <ShoppingBag className="w-3.5 h-3.5 stroke-[1.8]" />
-                  <span className="truncate">{isOutOfStock ? 'Sold Out' : 'Add to Bag'}</span>
+                  <span className="truncate">Add to Bag ({selectedSize})</span>
                 </>
               )}
             </button>

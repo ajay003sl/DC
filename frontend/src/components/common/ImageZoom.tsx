@@ -30,6 +30,11 @@ export const ImageZoom: React.FC<ImageZoomProps> = ({ src, alt, className = '' }
       <img
         src={src}
         alt={alt}
+        onError={(e) => {
+          const target = e.currentTarget;
+          target.onerror = null;
+          target.src = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80';
+        }}
         className={`w-full h-full object-cover object-top transition-transform duration-200 ${
           isZoomed ? 'opacity-0' : 'opacity-100'
         }`}

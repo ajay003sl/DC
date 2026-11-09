@@ -40,15 +40,22 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
                   alt={storeInfo.store_name}
                   onError={(e) => {
                     const target = e.currentTarget;
-                    if (!target.src.includes('8559d870')) {
-                      target.src = '/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg';
+                    if (!target.src.endsWith('/logo.jpg')) {
+                      target.src = '/logo.jpg';
                     } else {
+                      target.onerror = null;
                       target.style.display = 'none';
                     }
                   }}
                   className="w-12 h-12 object-cover rounded-full border border-[#D4AF37]/60 shadow-md flex-shrink-0"
                 />
-              ) : null}
+              ) : (
+                <img
+                  src="/logo.jpg"
+                  alt="Jershiha Fashion"
+                  className="w-12 h-12 object-cover rounded-full border border-[#D4AF37]/60 shadow-md flex-shrink-0"
+                />
+              )}
               <div className="min-w-0 flex-1">
                 <span className="font-serif text-base sm:text-lg tracking-[0.08em] font-medium text-white uppercase block leading-tight">
                   {storeInfo?.store_name || 'JERSHIHA FASHION'}

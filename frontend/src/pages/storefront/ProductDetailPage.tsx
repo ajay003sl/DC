@@ -174,7 +174,16 @@ export const ProductDetailPage: React.FC = () => {
                         : 'border-[#EAE6E1] opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img src={img.image_url} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
+                    <img
+                      src={img.image_url}
+                      alt={`${product.name} ${idx + 1}`}
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.onerror = null;
+                        target.src = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80';
+                      }}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>

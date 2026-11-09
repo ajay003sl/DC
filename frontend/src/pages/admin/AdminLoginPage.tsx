@@ -42,15 +42,22 @@ export const AdminLoginPage: React.FC = () => {
                 alt={storeInfo.store_name}
                 onError={(e) => {
                   const target = e.currentTarget;
-                  if (!target.src.includes('8559d870')) {
-                    target.src = '/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg';
+                  if (!target.src.endsWith('/logo.jpg')) {
+                    target.src = '/logo.jpg';
                   } else {
+                    target.onerror = null;
                     target.style.display = 'none';
                   }
                 }}
                 className="w-20 h-20 object-cover rounded-full border-2 border-[#D4AF37]/60 shadow-md mx-auto mb-3"
               />
-            ) : null}
+            ) : (
+              <img
+                src="/logo.jpg"
+                alt="Jershiha Fashion"
+                className="w-20 h-20 object-cover rounded-full border-2 border-[#D4AF37]/60 shadow-md mx-auto mb-3"
+              />
+            )}
             <span className="font-serif text-3xl tracking-[0.15em] font-medium text-[#1A1A1A] uppercase">
               {storeInfo?.store_name || 'JERSHIHA FASHION'}
             </span>

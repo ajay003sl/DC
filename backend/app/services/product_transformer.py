@@ -33,6 +33,9 @@ def product_to_card_out(prod: Product) -> ProductCardOut:
     images_out = [
         ImageOut.model_validate(img) for img in sorted(prod.images, key=lambda x: x.display_order)
     ]
+    variants_out = [
+        VariantOut.model_validate(v) for v in prod.variants
+    ]
 
     return ProductCardOut(
         id=prod.id,
@@ -55,12 +58,12 @@ def product_to_card_out(prod: Product) -> ProductCardOut:
         is_on_offer=prod.is_on_offer,
         offer_label=prod.offer_label,
         is_active=prod.is_active,
-        created_at=prod.created_at
+        created_at=prod.created_at,
+        variants=variants_out
     )
 
 def product_to_detail_out(prod: Product) -> ProductDetailOut:
     card = product_to_card_out(prod)
-    variants_out = [VariantOut.model_validate(v) for v in prod.variants]
     offers_out = [
         OfferOut(
             id=o.id,

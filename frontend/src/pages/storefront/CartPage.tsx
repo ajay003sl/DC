@@ -129,6 +129,11 @@ export const CartPage: React.FC = () => {
                           <img
                             src={item.imageUrl}
                             alt={item.name}
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              target.onerror = null;
+                              target.src = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80';
+                            }}
                             className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
                           />
                         </Link>

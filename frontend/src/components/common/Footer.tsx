@@ -30,9 +30,10 @@ export const Footer: React.FC = () => {
                   alt={storeInfo.store_name || 'Jershiha Fashion'}
                   onError={(e) => {
                     const target = e.currentTarget;
-                    if (!target.src.includes('8559d870')) {
-                      target.src = '/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg';
+                    if (!target.src.endsWith('/logo.jpg')) {
+                      target.src = '/logo.jpg';
                     } else {
+                      target.onerror = null;
                       target.style.display = 'none';
                     }
                   }}
@@ -48,9 +49,21 @@ export const Footer: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <h3 className="font-serif text-3xl tracking-[0.15em] font-normal text-white uppercase">
-                {storeInfo?.store_name || 'JERSHIHA FASHION'}
-              </h3>
+              <div className="flex items-center gap-3">
+                <img
+                  src="/logo.jpg"
+                  alt="Jershiha Fashion"
+                  className="w-12 h-12 object-cover rounded-full border border-[#D4AF37]/50 shadow-sm flex-shrink-0"
+                />
+                <div className="min-w-0">
+                  <h3 className="font-serif text-2xl tracking-[0.12em] font-normal text-white uppercase leading-tight">
+                    {storeInfo?.store_name || 'JERSHIHA FASHION'}
+                  </h3>
+                  <span className="text-[9px] uppercase tracking-[0.25em] text-[#C5A880] block mt-0.5 font-medium">
+                    Women's Boutique
+                  </span>
+                </div>
+              </div>
             )}
             <p className="text-sm text-[#A8A096] leading-relaxed">
               Your friendly neighborhood boutique for women's fashion. We offer handpicked designer dresses, contemporary women's wear, and custom stitching & fitting alterations. Visit us in-store or browse online.

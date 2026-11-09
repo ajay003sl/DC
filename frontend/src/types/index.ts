@@ -66,6 +66,7 @@ export interface ProductCard {
   offer_label?: string | null;
   is_active: boolean;
   created_at: string;
+  variants?: ProductVariant[];
 }
 
 export interface ProductDetail extends ProductCard {

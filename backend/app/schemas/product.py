@@ -64,6 +64,7 @@ class ProductCardOut(BaseModel):
     offer_label: Optional[str] = None
     is_active: bool
     created_at: datetime
+    variants: List[VariantOut] = []
 
     class Config:
         from_attributes = True
@@ -71,7 +72,6 @@ class ProductCardOut(BaseModel):
 class ProductDetailOut(ProductCardOut):
     description: Optional[str] = None
     category: Optional[CategoryOut] = None
-    variants: List[VariantOut] = []
     offers: List[OfferOut] = []
     updated_at: datetime
 

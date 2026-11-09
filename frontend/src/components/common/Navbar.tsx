@@ -91,15 +91,22 @@ export const Navbar: React.FC = () => {
                   alt={storeInfo.store_name}
                   onError={(e) => {
                     const target = e.currentTarget;
-                    if (!target.src.includes('8559d870')) {
-                      target.src = '/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg';
+                    if (!target.src.endsWith('/logo.jpg')) {
+                      target.src = '/logo.jpg';
                     } else {
+                      target.onerror = null;
                       target.style.display = 'none';
                     }
                   }}
                   className="w-11 h-11 sm:w-13 sm:h-13 object-cover rounded-full border border-[#D5C4B0] shadow-sm flex-shrink-0"
                 />
-              ) : null}
+              ) : (
+                <img
+                  src="/logo.jpg"
+                  alt="Jershiha Fashion"
+                  className="w-11 h-11 sm:w-13 sm:h-13 object-cover rounded-full border border-[#D5C4B0] shadow-sm flex-shrink-0"
+                />
+              )}
               <div className="flex flex-col justify-center text-left">
                 <span className="font-serif text-lg sm:text-xl lg:text-2xl tracking-[0.12em] font-medium text-[#1A1A1A] uppercase transition-colors group-hover:text-boutique-terracotta leading-tight whitespace-nowrap block">
                   {storeInfo?.store_name || 'JERSHIHA FASHION'}
@@ -268,18 +275,21 @@ export const Navbar: React.FC = () => {
                     alt={storeInfo.store_name}
                     onError={(e) => {
                       const target = e.currentTarget;
-                      if (!target.src.includes('8559d870')) {
-                        target.src = '/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg';
+                      if (!target.src.endsWith('/logo.jpg')) {
+                        target.src = '/logo.jpg';
                       } else {
+                        target.onerror = null;
                         target.style.display = 'none';
                       }
                     }}
                     className="w-10 h-10 object-cover rounded-full border border-[#D5C4B0] flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-[#1A1A1A] text-white flex items-center justify-center font-serif text-sm font-semibold flex-shrink-0">
-                    JF
-                  </div>
+                  <img
+                    src="/logo.jpg"
+                    alt="Jershiha Fashion"
+                    className="w-10 h-10 object-cover rounded-full border border-[#D5C4B0] flex-shrink-0"
+                  />
                 )}
                 <div className="min-w-0">
                   <h3 className="font-serif text-sm font-medium tracking-[0.14em] text-[#1A1A1A] uppercase truncate">
