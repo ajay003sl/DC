@@ -258,7 +258,7 @@ export const Navbar: React.FC = () => {
           />
 
           {/* Luxury Drawer Panel */}
-          <div className="fixed inset-y-0 left-0 w-[85vw] max-w-[320px] h-full bg-[#FAF7F2] shadow-2xl flex flex-col z-[101] animate-slideDrawerIn border-r border-[#EAE6E1] overscroll-contain touch-auto">
+          <div className="fixed top-0 bottom-0 left-0 w-[85vw] max-w-[320px] h-screen h-[100dvh] bg-[#FAF7F2] shadow-2xl flex flex-col z-[101] animate-slideDrawerIn border-r border-[#EAE6E1] overscroll-contain touch-auto">
             {/* Drawer Top Header */}
             <div className="p-4 bg-white border-b border-[#EAE6E1] flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-2.5 min-w-0">
@@ -305,7 +305,7 @@ export const Navbar: React.FC = () => {
             <div className="h-[2px] bg-gradient-to-r from-[#D4AF37] via-[#D5C4B0] to-transparent flex-shrink-0" />
 
             {/* Scrollable Drawer Body */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4 overscroll-contain">
               {/* In-Drawer Quick Search */}
               <form onSubmit={handleSearchSubmit} className="relative">
                 <input

@@ -113,36 +113,32 @@ export const HomePage: React.FC = () => {
       <section className="bg-white border-b border-[#EAE6E1] py-3 sticky top-16 sm:top-20 z-30 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Mobile Category Luxury View (< sm) */}
-          <div className="sm:hidden space-y-2.5">
+          {/* Mobile Category Luxury View (< sm) - Clean Dropdown exactly like Image 1 & 2 */}
+          <div className="sm:hidden">
             <div className="relative">
               {/* Custom Luxury Dropdown Button */}
               <button
                 type="button"
                 onClick={() => setMobileCategoryOpen(!mobileCategoryOpen)}
-                className="w-full flex items-center justify-between px-3.5 py-2.5 bg-[#FAF7F2] border border-[#D5C4B0] text-boutique-charcoal text-xs shadow-2xs transition-all active:bg-white"
+                className="w-full flex items-center justify-between px-3.5 py-2.5 bg-white border border-[#D5C4B0] text-boutique-charcoal text-xs shadow-2xs transition-all active:bg-[#FAF7F2]"
                 aria-expanded={mobileCategoryOpen}
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-[10px] uppercase tracking-[0.14em] text-[#8C827A] font-semibold">Category:</span>
                   <span className="font-serif text-xs font-semibold text-[#1A1A1A] truncate">
-                    {selectedCategory ? activeCategoryName : 'All Collections'}
+                    {selectedCategory ? activeCategoryName : 'All Designs'}
                   </span>
-                  <span className="px-1.5 py-0.2 text-[10px] font-semibold bg-white text-[#7A5835] border border-[#EAE6E1]">
-                    {selectedCategory ? (currentCategoryObj?.product_count || 0) : (totalCatalogCount || totalProducts)}
+                  <span className="text-[11px] text-[#8C827A] font-light flex-shrink-0">
+                    ({selectedCategory ? (currentCategoryObj?.product_count || 0) : (totalCatalogCount || totalProducts)})
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 flex-shrink-0 text-[#8C827A]">
-                  <span className="text-[10px] uppercase tracking-wider text-[#A8A096]">Browse</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileCategoryOpen ? 'rotate-180 text-[#1A1A1A]' : ''}`} />
-                </div>
+                <ChevronDown className={`w-4 h-4 text-[#8C827A] transition-transform duration-200 flex-shrink-0 ${mobileCategoryOpen ? 'rotate-180 text-[#1A1A1A]' : ''}`} />
               </button>
 
-              {/* In-Page Luxury Dropdown Menu */}
+              {/* In-Page Luxury Dropdown Menu matching Image 1 */}
               {mobileCategoryOpen && (
                 <>
                   <div
-                    className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[1px]"
+                    className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[1px]"
                     onClick={() => setMobileCategoryOpen(false)}
                   />
                   <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-[#D5C4B0] shadow-2xl z-50 overflow-hidden divide-y divide-[#F2ECE1] max-h-80 overflow-y-auto">
@@ -153,27 +149,23 @@ export const HomePage: React.FC = () => {
                         handleCategorySelect('');
                         setMobileCategoryOpen(false);
                       }}
-                      className={`w-full px-3.5 py-3 flex items-center justify-between text-left transition-colors ${
+                      className={`w-full px-4 py-3 flex items-center justify-between text-left transition-colors ${
                         selectedCategory === '' ? 'bg-[#FAF7F2]' : 'hover:bg-[#FAF7F2]'
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-[#1A1A1A] text-white flex items-center justify-center font-serif text-[11px] font-semibold flex-shrink-0">
-                          All
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
+                          selectedCategory === '' ? 'border-[#1A1A1A] bg-[#1A1A1A]' : 'border-[#C8BFB5] bg-white'
+                        }`}>
+                          {selectedCategory === '' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                         </div>
-                        <div>
-                          <p className="font-serif text-xs font-semibold text-[#1A1A1A] tracking-wide">
-                            All Collections
-                          </p>
-                          <p className="text-[10px] text-[#8C827A]">Complete Boutique Catalog</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 text-[10px] font-semibold bg-[#F5EDE1] text-[#7A5835]">
-                          {totalCatalogCount || totalProducts}
+                        <span className="font-serif text-xs font-semibold text-[#1A1A1A] tracking-wide">
+                          All Designs
                         </span>
-                        {selectedCategory === '' && <Check className="w-4 h-4 text-[#D4AF37]" />}
                       </div>
+                      <span className="px-2 py-0.5 text-[11px] font-medium bg-[#F5EDE1] text-[#7A5835]">
+                        {totalCatalogCount || totalProducts}
+                      </span>
                     </button>
 
                     {/* Dynamic Categories */}
@@ -187,74 +179,29 @@ export const HomePage: React.FC = () => {
                             handleCategorySelect(cat.slug);
                             setMobileCategoryOpen(false);
                           }}
-                          className={`w-full px-3.5 py-3 flex items-center justify-between text-left transition-colors ${
+                          className={`w-full px-4 py-3 flex items-center justify-between text-left transition-colors ${
                             isSelected ? 'bg-[#FAF7F2]' : 'hover:bg-[#FAF7F2]'
                           }`}
                         >
                           <div className="flex items-center gap-2.5">
-                            {cat.image_url ? (
-                              <img
-                                src={cat.image_url}
-                                alt={cat.name}
-                                className="w-8 h-8 rounded-full object-cover border border-[#D5C4B0] flex-shrink-0"
-                              />
-                            ) : (
-                              <div className="w-8 h-8 rounded-full bg-[#FAF7F2] text-[#8C827A] border border-[#EAE6E1] flex items-center justify-center font-serif text-xs flex-shrink-0">
-                                {cat.name.charAt(0)}
-                              </div>
-                            )}
-                            <div>
-                              <p className="font-serif text-xs font-semibold text-[#1A1A1A] tracking-wide">
-                                {cat.name}
-                              </p>
-                              <p className="text-[10px] text-[#8C827A]">{cat.description || 'Exclusive boutique wear'}</p>
+                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
+                              isSelected ? 'border-[#1A1A1A] bg-[#1A1A1A]' : 'border-[#C8BFB5] bg-white'
+                            }`}>
+                              {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                             </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 text-[10px] font-semibold bg-[#F5EDE1] text-[#7A5835]">
-                              {cat.product_count || 0}
+                            <span className="font-serif text-xs font-semibold text-[#1A1A1A] tracking-wide">
+                              {cat.name}
                             </span>
-                            {isSelected && <Check className="w-4 h-4 text-[#D4AF37]" />}
                           </div>
+                          <span className="px-2 py-0.5 text-[11px] font-medium bg-[#F5EDE1] text-[#7A5835]">
+                            {cat.product_count || 0}
+                          </span>
                         </button>
                       );
                     })}
                   </div>
                 </>
               )}
-            </div>
-
-            {/* Quick Horizontal Ribbon on Mobile */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none no-scrollbar">
-              <button
-                type="button"
-                onClick={() => handleCategorySelect('')}
-                className={`flex-shrink-0 px-2.5 py-1 text-[10px] uppercase tracking-wider font-semibold border transition-all ${
-                  selectedCategory === ''
-                    ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]'
-                    : 'bg-[#FAF7F2] text-[#5A524C] border-[#EAE6E1]'
-                }`}
-              >
-                All ({totalCatalogCount || totalProducts})
-              </button>
-              {categories.map((cat) => {
-                const isSelected = selectedCategory === cat.slug;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => handleCategorySelect(cat.slug)}
-                    className={`flex-shrink-0 px-2.5 py-1 text-[10px] uppercase tracking-wider font-semibold border transition-all flex items-center gap-1.5 ${
-                      isSelected
-                        ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]'
-                        : 'bg-[#FAF7F2] text-[#5A524C] border-[#EAE6E1]'
-                    }`}
-                  >
-                    <span>{cat.name}</span>
-                    <span className="opacity-70">({cat.product_count || 0})</span>
-                  </button>
-                );
-              })}
             </div>
           </div>
 
@@ -323,21 +270,21 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. Products Section & Toolbar */}
-      <section ref={productsRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Toolbar: Category Title, Search Query Tag & Sort */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-6 border-b border-[#EAE6E1]">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="font-serif text-xl sm:text-2xl font-medium text-boutique-charcoal">
+      {/* 2. Products Section & Toolbar */}
+      <section ref={productsRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        {/* Toolbar: Category Title & Sort - Perfectly Aligned Even Baseline */}
+        <div className="flex items-center justify-between gap-3 pb-3 mb-5 border-b border-[#EAE6E1]">
+          <div className="flex items-baseline gap-2 min-w-0">
+            <h2 className="font-serif text-lg sm:text-2xl font-medium text-[#1A1A1A] truncate">
               {activeCategoryName}
             </h2>
-            <span className="text-xs text-[#8C827A] font-medium bg-[#FAF7F2] border border-[#EAE6E1] px-2 py-0.5 rounded-full">
-              {totalProducts} {totalProducts === 1 ? 'dress' : 'dresses'}
+            <span className="text-[11px] sm:text-xs text-[#8C827A] font-light flex-shrink-0">
+              ({totalProducts})
             </span>
 
             {searchQueryParam && (
-              <span className="inline-flex items-center gap-1 text-xs bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-full">
-                <span>Search: "{searchQueryParam}"</span>
+              <span className="hidden sm:inline-flex items-center gap-1 text-[11px] bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5">
+                <span>"{searchQueryParam}"</span>
                 <button onClick={handleClearSearch} className="hover:text-red-700 ml-1">
                   <X className="w-3 h-3" />
                 </button>
@@ -345,19 +292,24 @@ export const HomePage: React.FC = () => {
             )}
           </div>
 
-          {/* Sort By Dropdown */}
-          <div className="flex items-center gap-2 self-end sm:self-auto">
-            <span className="text-xs text-[#8C827A] uppercase tracking-wider font-medium">Sort:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => updateParams({ sort: e.target.value, page: null })}
-              className="bg-white border border-[#D5C4B0] text-xs font-medium py-1.5 px-2.5 text-boutique-charcoal focus:outline-none cursor-pointer shadow-2xs"
-            >
-              <option value="latest">Latest Arrivals</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="discount">Highest Discount</option>
-            </select>
+          {/* Sort By Dropdown - Flush Horizontal Alignment */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <span className="text-[10px] sm:text-xs text-[#8C827A] uppercase tracking-wider font-semibold">
+              Sort:
+            </span>
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => updateParams({ sort: e.target.value, page: null })}
+                className="appearance-none bg-white border border-[#D5C4B0] text-[11px] sm:text-xs font-medium py-1.5 pl-2.5 pr-7 text-[#1A1A1A] focus:outline-none cursor-pointer shadow-2xs rounded-none"
+              >
+                <option value="latest">Latest Arrivals</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+                <option value="discount">Highest Discount</option>
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-[#8C827A] pointer-events-none absolute right-2 top-1/2 -translate-y-1/2" />
+            </div>
           </div>
         </div>
 
