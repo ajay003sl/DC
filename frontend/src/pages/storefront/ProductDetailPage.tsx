@@ -432,7 +432,7 @@ export const ProductDetailPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-4 pt-6 border-t border-[#EAE6E1] text-xs text-[#6B6B6B]">
                 <div className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-[#B86B5A] flex-shrink-0 mt-0.5" />
-                  <span>Try it on at our Indiranagar, Bangalore boutique.</span>
+                  <span>Try it on at our boutique store.</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <ShieldCheck className="w-4 h-4 text-[#C5A880] flex-shrink-0 mt-0.5" />

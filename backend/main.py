@@ -43,6 +43,8 @@ async def lifespan(app: FastAPI):
             print("Guaranteed admin user initialized: admin@jershihafashion.com")
 
         # 2. Guarantee basic store settings exist and verify logo integrity
+        DEFAULT_ADDRESS = "Thazheveettuvilakam, Puthiyathura, Pulluvila P.O. - 695526"
+        DEFAULT_MAPS_URL = "https://maps.google.com/maps?q=Thazheveettuvilakam%2C+Puthiyathura%2C+Pulluvila+P.O.+695526&t=&z=16&ie=UTF8&iwloc=&output=embed"
         DEFAULT_LOGO = "/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg"
         setting = db.query(StoreSetting).first()
         if not setting:
@@ -52,12 +54,20 @@ async def lifespan(app: FastAPI):
                 whatsapp_number="918925184903",
                 phone="+91 8925184903",
                 email="care@jershihafashion.com",
-                address="Indiranagar, Bangalore",
+                address=DEFAULT_ADDRESS,
+                maps_embed_url=DEFAULT_MAPS_URL,
                 logo_url=DEFAULT_LOGO
             )
             db.add(new_setting)
             db.commit()
         else:
+            # Self-healing: update address and maps embed URL if it still has old placeholder
+            if not setting.address or "Bangalore" in setting.address or "Indiranagar" in setting.address:
+                setting.address = DEFAULT_ADDRESS
+                setting.maps_embed_url = DEFAULT_MAPS_URL
+                db.commit()
+                print(f"Updated store address & Google Maps URL to: {DEFAULT_ADDRESS}")
+
             # Self-healing: if the logo points to an ephemeral uploaded file that does not exist on disk,
             # restore it to the verified committed boutique logo so it never breaks after container rebuilds
             if not setting.logo_url or setting.logo_url.startswith("/uploads/"):

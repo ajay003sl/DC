@@ -31,4 +31,6 @@ services:
       - key: STORE_EMAIL
         value: care@jershihafashion.com
       - key: STORE_ADDRESS
-        value: "Plot 42, Galleria High Street, Indiranagar, Bangalore - 560038"
+        value: "Thazheveettuvilakam, Puthiyathura, Pulluvila P.O. - 695526"
+      - key: STORE_MAPS_EMBED_URL
+        value: "https://maps.google.com/maps?q=Thazheveettuvilakam%2C+Puthiyathura%2C+Pulluvila+P.O.+695526&t=&z=16&ie=UTF8&iwloc=&output=embed"

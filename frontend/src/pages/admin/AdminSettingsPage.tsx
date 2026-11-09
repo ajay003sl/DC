@@ -411,7 +411,7 @@ export const AdminSettingsPage: React.FC = () => {
                     value={storeData.address}
                     onChange={(e) => setStoreData({ ...storeData, address: e.target.value })}
                     className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-[#FAF7F2] border border-[#EAE6E1] focus:outline-none focus:border-[#1A1A1A]"
-                    placeholder="Plot 42, Galleria High Street, Indiranagar, Bangalore - 560038"
+                    placeholder="Thazheveettuvilakam, Puthiyathura, Pulluvila P.O. - 695526"
                   />
                 </div>
               </div>

@@ -6,7 +6,7 @@ import { useStore } from '../../context/StoreContext';
 export const Footer: React.FC = () => {
   const { storeInfo } = useStore();
 
-  const storeAddress = storeInfo?.address || 'Plot 42, Galleria High Street, Indiranagar, Bangalore - 560038';
+  const storeAddress = storeInfo?.address || 'Thazheveettuvilakam, Puthiyathura, Pulluvila P.O. - 695526';
   const storePhone = storeInfo?.phone || '+91 8925184903';
   const storeEmail = storeInfo?.email || 'care@jershihafashion.com';
   const storeHours = storeInfo?.hours || 'Mon - Sun: 10:00 AM - 9:00 PM';

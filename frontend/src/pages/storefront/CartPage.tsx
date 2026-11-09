@@ -309,7 +309,7 @@ export const CartPage: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Store className="w-3.5 h-3.5 text-[#7A5835] flex-shrink-0" />
-                    <span>In-Store Try-On & Pickup in Bangalore</span>
+                    <span>In-Store Try-On & Pickup</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-3.5 h-3.5 text-[#D4AF37] flex-shrink-0" />

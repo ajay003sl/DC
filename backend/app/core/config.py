@@ -27,9 +27,9 @@ class Settings(BaseSettings):
     STORE_WHATSAPP_NUMBER: str = os.getenv("STORE_WHATSAPP_NUMBER", "919876543210")
     STORE_PHONE: str = os.getenv("STORE_PHONE", "+91 98765 43210")
     STORE_EMAIL: str = os.getenv("STORE_EMAIL", "care@jershihafashion.com")
-    STORE_ADDRESS: str = os.getenv("STORE_ADDRESS", "Plot 42, Galleria High Street, Indiranagar, Bangalore - 560038")
+    STORE_ADDRESS: str = os.getenv("STORE_ADDRESS", "Thazheveettuvilakam, Puthiyathura, Pulluvila P.O. - 695526")
     STORE_HOURS: str = "Mon - Sun: 10:30 AM - 9:00 PM"
-    STORE_MAPS_EMBED_URL: str = "https://maps.google.com/maps?q=Indiranagar+Bangalore&t=&z=15&ie=UTF8&iwloc=&output=embed"
+    STORE_MAPS_EMBED_URL: str = os.getenv("STORE_MAPS_EMBED_URL", "https://maps.google.com/maps?q=Thazheveettuvilakam%2C+Puthiyathura%2C+Pulluvila+P.O.+695526&t=&z=16&ie=UTF8&iwloc=&output=embed")
 
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [

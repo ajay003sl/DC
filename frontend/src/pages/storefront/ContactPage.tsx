@@ -12,14 +12,14 @@ export const ContactPage: React.FC = () => {
     message: ''
   });
 
-  const storeAddress = storeInfo?.address || 'Plot 42, Galleria High Street, Indiranagar, Bangalore - 560038';
-  const storePhone = storeInfo?.phone || '+91 98765 43210';
+  const storeAddress = storeInfo?.address || 'Thazheveettuvilakam, Puthiyathura, Pulluvila P.O. - 695526';
+  const storePhone = storeInfo?.phone || '+91 8925184903';
   const storeEmail = storeInfo?.email || 'care@jershihafashion.com';
   const storeHours = storeInfo?.hours || 'Mon - Sun: 10:00 AM - 9:00 PM';
   const whatsappNumber = storeInfo?.whatsapp_number || '918925184903';
-  const mapsEmbedUrl = storeInfo?.maps_embed_url || 'https://maps.google.com/maps?q=Indiranagar+Bangalore&t=&z=15&ie=UTF8&iwloc=&output=embed';
+  const mapsEmbedUrl = storeInfo?.maps_embed_url || 'https://maps.google.com/maps?q=Thazheveettuvilakam%2C+Puthiyathura%2C+Pulluvila+P.O.+695526&t=&z=16&ie=UTF8&iwloc=&output=embed';
 
-  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Jershiha Fashion! I would like to enquire about visiting your boutique store in Bangalore.')}`;
+  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Jershiha Fashion! I would like to enquire about visiting your boutique store.')}`;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +41,7 @@ export const ContactPage: React.FC = () => {
             We Welcome You to Our Boutique
           </h1>
           <p className="text-sm text-[#6B6B6B] mt-3 leading-relaxed">
-            Experience personalised fashion styling, drape consultations, and in-person fabric trials at our flagship Bangalore store.
+            Experience personalised fashion styling, drape consultations, and in-person fabric trials at our flagship boutique store.
           </p>
         </div>
 
@@ -207,7 +207,7 @@ export const ContactPage: React.FC = () => {
         <div className="bg-white p-4 border border-[#EAE6E1] shadow-sm">
           <div className="mb-3 px-2">
             <h3 className="font-serif text-xl text-boutique-charcoal font-medium">Boutique Location Map</h3>
-            <p className="text-xs text-[#8C827A]">Locate us easily in Indiranagar, Bangalore</p>
+            <p className="text-xs text-[#8C827A]">Locate our boutique store easily</p>
           </div>
           <div className="w-full h-80 bg-gray-100 overflow-hidden border border-[#EAE6E1]">
             <iframe

@@ -456,7 +456,7 @@ export const Navbar: React.FC = () => {
 
               <div className="pt-1.5 text-center text-[10px] text-[#8C827A] flex items-center justify-center gap-1">
                 <Sparkles className="w-3 h-3 text-[#D4AF37]" />
-                <span className="truncate">Bangalore Boutique • {storeInfo?.hours || 'Open Daily 10:30 AM - 9:00 PM'}</span>
+                <span className="truncate">Physical Boutique • {storeInfo?.hours || 'Open Daily 10:30 AM - 9:00 PM'}</span>
               </div>
             </div>
           </div>

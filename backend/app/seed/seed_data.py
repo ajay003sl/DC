@@ -433,9 +433,9 @@ def seed_database(force: bool = False):
                 whatsapp_number="919876543210",
                 phone="+91 98765 43210",
                 email="care@jershihafashion.com",
-                address="Plot 42, Galleria High Street, Indiranagar, Bangalore - 560038",
+                address="Thazheveettuvilakam, Puthiyathura, Pulluvila P.O. - 695526",
                 hours="Mon - Sun: 10:30 AM - 9:00 PM",
-                maps_embed_url="https://maps.google.com/maps?q=Indiranagar+Bangalore&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                maps_embed_url="https://maps.google.com/maps?q=Thazheveettuvilakam%2C+Puthiyathura%2C+Pulluvila+P.O.+695526&t=&z=16&ie=UTF8&iwloc=&output=embed"
             )
             db.add(new_setting)
 

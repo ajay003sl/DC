@@ -25,7 +25,7 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({ isOpen, onClose 
       `${idx + 1}. *${item.name}* (SKU: ${item.sku}) - ${formatPrice(item.effective_price)}`
     )).join('\n');
 
-    const message = `Hello Jershiha Fashion! ✨\n\nI have shortlisted these ${wishlist.length} dresses from your website for my upcoming physical boutique visit:\n\n${itemsText}\n\nPlease let me know if these are currently available in the Bangalore store for me to try on. Thank you!`;
+    const message = `Hello Jershiha Fashion! ✨\n\nI have shortlisted these ${wishlist.length} dresses from your website for my upcoming physical boutique visit:\n\n${itemsText}\n\nPlease let me know if these are currently available in the store for me to try on. Thank you!`;
 
     const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank', 'noopener,noreferrer');

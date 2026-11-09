@@ -65,7 +65,7 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ isOpen, onClose 
           Standard Women's Size Chart
         </h2>
         <p className="text-xs text-[#6B6B6B] mb-6 leading-relaxed">
-          Our garments are tailored with 1.5-inch in-seam margins for easy custom adjustments. Visit our Bangalore physical boutique for complimentary in-person alterations!
+          Our garments are tailored with 1.5-inch in-seam margins for easy custom adjustments. Visit our physical boutique for complimentary in-person alterations!
         </p>
 
         {/* Unit Toggle */}
