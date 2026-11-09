@@ -13,7 +13,7 @@ class StoreSetting(Base):
     email = Column(String(150), nullable=False, default="care@jershihafashion.com")
     address = Column(Text, nullable=False, default="Thazheveettuvilakam, Puthiyathura, Pulluvila P.O. - 695526")
     hours = Column(String(150), nullable=True, default="Mon - Sun: 10:30 AM - 9:00 PM")
-    maps_embed_url = Column(Text, nullable=True, default="https://maps.google.com/maps?q=Thazheveettuvilakam%2C+Puthiyathura%2C+Pulluvila+P.O.+695526&t=&z=16&ie=UTF8&iwloc=&output=embed")
+    maps_embed_url = Column(Text, nullable=True, default="https://maps.google.com/maps?q=8.335898,77.046682&t=&z=16&ie=UTF8&iwloc=&output=embed")
     updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
 
 class SystemMeta(Base):

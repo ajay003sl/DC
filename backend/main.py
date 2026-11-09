@@ -44,7 +44,7 @@ async def lifespan(app: FastAPI):
 
         # 2. Guarantee basic store settings exist and verify logo integrity
         DEFAULT_ADDRESS = "Thazheveettuvilakam, Puthiyathura, Pulluvila P.O. - 695526"
-        DEFAULT_MAPS_URL = "https://maps.google.com/maps?q=Thazheveettuvilakam%2C+Puthiyathura%2C+Pulluvila+P.O.+695526&t=&z=16&ie=UTF8&iwloc=&output=embed"
+        DEFAULT_MAPS_URL = "https://maps.google.com/maps?q=8.335898,77.046682&t=&z=16&ie=UTF8&iwloc=&output=embed"
         DEFAULT_LOGO = "/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg"
         setting = db.query(StoreSetting).first()
         if not setting:
@@ -61,12 +61,12 @@ async def lifespan(app: FastAPI):
             db.add(new_setting)
             db.commit()
         else:
-            # Self-healing: update address and maps embed URL if it still has old placeholder
-            if not setting.address or "Bangalore" in setting.address or "Indiranagar" in setting.address:
+            # Self-healing: update address and maps embed URL if it still has old placeholder or doesn't have exact shop coordinates
+            if not setting.address or "Bangalore" in setting.address or "Indiranagar" in setting.address or "8.335898" not in (setting.maps_embed_url or ""):
                 setting.address = DEFAULT_ADDRESS
                 setting.maps_embed_url = DEFAULT_MAPS_URL
                 db.commit()
-                print(f"Updated store address & Google Maps URL to: {DEFAULT_ADDRESS}")
+                print(f"Updated store address & exact coordinates Google Maps URL to: {DEFAULT_ADDRESS}")
 
             # Self-healing: if the logo points to an ephemeral uploaded file that does not exist on disk,
             # restore it to the verified committed boutique logo so it never breaks after container rebuilds

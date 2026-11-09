@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, Clock, MessageCircle, Sparkles } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, MessageCircle, Sparkles, ExternalLink } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
 export const Footer: React.FC = () => {
@@ -113,7 +113,18 @@ export const Footer: React.FC = () => {
             <ul className="space-y-3.5 text-sm text-[#A8A096]">
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-[#C5A880] flex-shrink-0 mt-1" />
-                <span className="leading-snug">{storeAddress}</span>
+                <div className="min-w-0">
+                  <span className="leading-snug block">{storeAddress}</span>
+                  <a
+                    href="https://maps.app.goo.gl/gphqoqjNfCg7FzmX7"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] text-[#D4AF37] hover:underline mt-1 font-medium"
+                  >
+                    <span>View on Google Maps</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-[#C5A880] flex-shrink-0" />

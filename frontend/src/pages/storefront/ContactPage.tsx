@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, MessageCircle, Send, CheckCircle2 } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, MessageCircle, Send, CheckCircle2, ExternalLink, Navigation } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
 export const ContactPage: React.FC = () => {
@@ -17,7 +17,8 @@ export const ContactPage: React.FC = () => {
   const storeEmail = storeInfo?.email || 'care@jershihafashion.com';
   const storeHours = storeInfo?.hours || 'Mon - Sun: 10:00 AM - 9:00 PM';
   const whatsappNumber = storeInfo?.whatsapp_number || '918925184903';
-  const mapsEmbedUrl = storeInfo?.maps_embed_url || 'https://maps.google.com/maps?q=Thazheveettuvilakam%2C+Puthiyathura%2C+Pulluvila+P.O.+695526&t=&z=16&ie=UTF8&iwloc=&output=embed';
+  const mapsEmbedUrl = storeInfo?.maps_embed_url || 'https://maps.google.com/maps?q=8.335898,77.046682&t=&z=16&ie=UTF8&iwloc=&output=embed';
+  const googleMapsAppUrl = 'https://maps.app.goo.gl/gphqoqjNfCg7FzmX7';
 
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Jershiha Fashion! I would like to enquire about visiting your boutique store.')}`;
 
@@ -204,19 +205,31 @@ export const ContactPage: React.FC = () => {
         </div>
 
         {/* Google Maps Location Embed */}
-        <div className="bg-white p-4 border border-[#EAE6E1] shadow-sm">
-          <div className="mb-3 px-2">
-            <h3 className="font-serif text-xl text-boutique-charcoal font-medium">Boutique Location Map</h3>
-            <p className="text-xs text-[#8C827A]">Locate our boutique store easily</p>
+        <div className="bg-white p-4 sm:p-6 border border-[#EAE6E1] shadow-sm">
+          <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 className="font-serif text-xl sm:text-2xl text-boutique-charcoal font-medium">Boutique Location Map</h3>
+              <p className="text-xs text-[#8C827A] mt-0.5">{storeAddress}</p>
+            </div>
+            <a
+              href={googleMapsAppUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#1A1A1A] hover:bg-black text-white text-xs uppercase tracking-wider font-semibold transition-all shadow-sm self-start sm:self-auto"
+            >
+              <Navigation className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>Get Directions on Google Maps</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
+            </a>
           </div>
-          <div className="w-full h-80 bg-gray-100 overflow-hidden border border-[#EAE6E1]">
+          <div className="w-full h-80 sm:h-96 bg-gray-100 overflow-hidden border border-[#EAE6E1]">
             <iframe
               title="Jershiha Fashion Store Location"
               src={mapsEmbedUrl}
               width="100%"
               height="100%"
               style={{ border: 0 }}
-              allowFullScreen={false}
+              allowFullScreen={true}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />

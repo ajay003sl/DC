@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     STORE_EMAIL: str = os.getenv("STORE_EMAIL", "care@jershihafashion.com")
     STORE_ADDRESS: str = os.getenv("STORE_ADDRESS", "Thazheveettuvilakam, Puthiyathura, Pulluvila P.O. - 695526")
     STORE_HOURS: str = "Mon - Sun: 10:30 AM - 9:00 PM"
-    STORE_MAPS_EMBED_URL: str = os.getenv("STORE_MAPS_EMBED_URL", "https://maps.google.com/maps?q=Thazheveettuvilakam%2C+Puthiyathura%2C+Pulluvila+P.O.+695526&t=&z=16&ie=UTF8&iwloc=&output=embed")
+    STORE_MAPS_EMBED_URL: str = os.getenv("STORE_MAPS_EMBED_URL", "https://maps.google.com/maps?q=8.335898,77.046682&t=&z=16&ie=UTF8&iwloc=&output=embed")
 
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
