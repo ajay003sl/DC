@@ -6,6 +6,7 @@ from app.models.product import Product
 from app.models.image import ProductImage
 from app.models.variant import ProductVariant
 from app.models.setting import StoreSetting, SystemMeta
+from app.models.media import UploadedMedia
 
 __all__ = [
     "Base",
@@ -18,5 +19,6 @@ __all__ = [
     "ProductVariant",
     "StoreSetting",
     "SystemMeta",
+    "UploadedMedia",
 ]
 

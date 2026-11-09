@@ -47,6 +47,7 @@ export const AdminProductEditPage: React.FC = () => {
     }
   ]);
   const [newImageUrl, setNewImageUrl] = useState('');
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   const [variants, setVariants] = useState<ProductVariant[]>([
     { size: 'Free Size', colour: 'Standard', colour_hex: '#FFFFFF', stock_quantity: 5 }
@@ -104,6 +105,7 @@ export const AdminProductEditPage: React.FC = () => {
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
+    setUploadingImages(true);
     try {
       const filesArray = Array.from(e.target.files);
       const uploaded = await api.admin.uploadImages(filesArray);
@@ -117,6 +119,9 @@ export const AdminProductEditPage: React.FC = () => {
       setImages([...images, ...newImgs]);
     } catch (err: any) {
       alert(`Image upload failed: ${err.message}`);
+    } finally {
+      setUploadingImages(false);
+      e.target.value = '';
     }
   };
 
@@ -421,13 +426,14 @@ export const AdminProductEditPage: React.FC = () => {
             >
               Add URL
             </button>
-            <label className="px-4 py-2.5 bg-[#1A1A1A] hover:bg-black text-white text-xs uppercase tracking-wider font-semibold cursor-pointer flex items-center justify-center gap-2">
+            <label className={`px-4 py-2.5 bg-[#1A1A1A] hover:bg-black text-white text-xs uppercase tracking-wider font-semibold cursor-pointer flex items-center justify-center gap-2 ${uploadingImages ? 'opacity-70 cursor-wait' : ''}`}>
               <Upload className="w-3.5 h-3.5" />
-              <span>Upload Local Files</span>
+              <span>{uploadingImages ? 'Optimizing & Saving...' : 'Upload Local Files'}</span>
               <input
                 type="file"
                 multiple
                 accept="image/*"
+                disabled={uploadingImages}
                 onChange={handleFileUpload}
                 className="hidden"
               />
