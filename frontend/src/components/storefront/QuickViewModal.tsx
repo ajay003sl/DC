@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { X, Check, ArrowRight, ShoppingBag } from 'lucide-react';
+import { X, Check, ArrowRight, ShoppingBag, Plus, Minus } from 'lucide-react';
 import { ProductCard, ProductDetail, ProductVariant } from '../../types';
 import { api } from '../../services/api';
 import { formatPrice } from '../../utils/format';
@@ -13,12 +13,13 @@ interface QuickViewModalProps {
 }
 
 export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => {
-  const { addItem } = useCart();
+  const { items, addItem } = useCart();
   const [detail, setDetail] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColour, setSelectedColour] = useState<string>('');
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     if (product) {
@@ -76,13 +77,30 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
 
   const currentVariants: ProductVariant[] = detail?.variants || [];
   
-  // Calculate stock for selected combination
-  const matchingVariant = currentVariants.find(
-    v => (selectedSize ? v.size === selectedSize : true) && 
-         (selectedColour ? v.colour === selectedColour : true)
+  // Calculate stock strictly for the selected size
+  const variantsForSize = currentVariants.filter(
+    v => (v.size || '').trim().toUpperCase() === (selectedSize || '').trim().toUpperCase()
   );
 
-  const variantStock = matchingVariant ? matchingVariant.stock_quantity : (detail?.total_stock ?? product.total_stock);
+  const exactVariant = selectedColour
+    ? variantsForSize.find(v => (v.colour || '').trim().toLowerCase() === selectedColour.trim().toLowerCase())
+    : null;
+
+  const variantStock = exactVariant
+    ? exactVariant.stock_quantity
+    : variantsForSize.length > 0
+      ? variantsForSize.reduce((sum, v) => sum + v.stock_quantity, 0)
+      : (detail?.total_stock ?? product.total_stock);
+
+  // How many already in bag
+  const bagItem = items.find(
+    i => i.productId === product.id &&
+         (i.size || '').trim().toUpperCase() === (selectedSize || '').trim().toUpperCase()
+  );
+  const alreadyInBag = bagItem ? bagItem.quantity : 0;
+  const remainingCanAdd = Math.max(0, variantStock - alreadyInBag);
+  const isMaxInBag = variantStock > 0 && remainingCanAdd === 0;
+
   const images = (detail?.images && detail.images.length > 0) ? detail.images : product.images;
   const currentImageUrl = images[activeImageIndex]?.image_url || product.primary_image_url;
 
@@ -155,10 +173,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                 )}
               </div>
 
-              {/* Short description */}
-              {detail?.description && (
+              {/* Short description - only if present */}
+              {Boolean(detail?.description && detail.description.trim().length > 0) && (
                 <p className="text-xs text-[#6B6B6B] leading-relaxed mb-6 line-clamp-3">
-                  {detail.description}
+                  {detail?.description?.trim()}
                 </p>
               )}
 
@@ -174,7 +192,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                     {product.available_sizes.map((size) => (
                       <button
                         key={size}
-                        onClick={() => setSelectedSize(size)}
+                        onClick={() => {
+                          setSelectedSize(size);
+                          setQuantity(1);
+                        }}
                         className={`min-w-[40px] px-3 py-1.5 text-xs font-medium uppercase border transition-all ${
                           selectedSize === size
                             ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]'
@@ -200,7 +221,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                       return (
                         <button
                           key={col}
-                          onClick={() => setSelectedColour(col)}
+                          onClick={() => {
+                            setSelectedColour(col);
+                            setQuantity(1);
+                          }}
                           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs border transition-all ${
                             isSelected
                               ? 'border-boutique-charcoal bg-[#1A1A1A] text-white font-semibold'
@@ -220,18 +244,55 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
               <div className="mb-6 py-2 px-3 bg-[#FAF7F2] border border-[#EAE6E1] text-xs">
                 {variantStock === 0 ? (
                   <span className="text-red-700 font-medium">
-                    ⚠️ Currently out of stock in physical store for selected option.
+                    ⚠️ Currently out of stock in physical store for size {selectedSize}.
                   </span>
                 ) : variantStock <= 3 ? (
                   <span className="text-amber-800 font-medium">
-                    ⚡ Hurry! Only {variantStock} pieces left in our store for this size.
+                    ⚡ Hurry! Only {variantStock} piece{variantStock > 1 ? 's' : ''} available in size {selectedSize}.
                   </span>
                 ) : (
                   <span className="text-emerald-800 font-medium">
-                    ✓ Available in stock at our Bangalore boutique.
+                    ✓ Available in stock ({variantStock} pieces in size {selectedSize}).
+                  </span>
+                )}
+                {alreadyInBag > 0 && (
+                  <span className="block text-[11px] text-[#7A5835] font-medium mt-0.5">
+                    ({alreadyInBag} of {variantStock} pieces currently in your bag)
                   </span>
                 )}
               </div>
+
+              {/* Quantity Stepper (Capped at Variant Stock) */}
+              {variantStock > 0 && remainingCanAdd > 0 && (
+                <div className="mb-4 flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-widest text-boutique-charcoal font-semibold">
+                    Quantity:
+                  </span>
+                  <div className="flex items-center border border-[#D5C4B0] bg-white">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      disabled={quantity <= 1}
+                      className="w-8 h-8 flex items-center justify-center text-[#5A524C] hover:bg-[#FAF7F2] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <span className="w-9 text-center text-xs font-bold text-[#1A1A1A]">
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.min(remainingCanAdd, quantity + 1))}
+                      disabled={quantity >= remainingCanAdd}
+                      className="w-8 h-8 flex items-center justify-center text-[#5A524C] hover:bg-[#FAF7F2] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      aria-label="Increase quantity"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Actions */}
@@ -239,7 +300,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
               <button
                 type="button"
                 onClick={() => {
-                  if (!product || variantStock === 0) return;
+                  if (!product || variantStock === 0 || remainingCanAdd <= 0) return;
+                  const qtyToAdd = Math.min(quantity, remainingCanAdd);
+                  if (qtyToAdd <= 0) return;
+
                   addItem({
                     productId: product.id,
                     name: product.name,
@@ -249,16 +313,22 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                     imageUrl: currentImageUrl,
                     size: selectedSize || (detail?.available_sizes?.[0] || 'Standard'),
                     colour: selectedColour || (detail?.available_colours?.[0] || 'Default'),
-                    quantity: 1,
+                    quantity: qtyToAdd,
                     maxStock: variantStock > 0 ? variantStock : undefined
                   });
                   onClose();
                 }}
-                disabled={variantStock === 0}
-                className="w-full py-3.5 bg-[#1A1A1A] hover:bg-black text-white text-xs tracking-luxury uppercase font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-[0.99] disabled:opacity-50"
+                disabled={variantStock === 0 || isMaxInBag}
+                className="w-full py-3.5 bg-[#1A1A1A] hover:bg-black text-white text-xs tracking-luxury uppercase font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span>{variantStock === 0 ? 'Sold Out' : 'Add to Shopping Bag'}</span>
+                <span>
+                  {variantStock === 0
+                    ? `Sold Out (${selectedSize})`
+                    : isMaxInBag
+                      ? `All ${variantStock} Pieces in Bag`
+                      : `Add to Shopping Bag (${quantity})`}
+                </span>
               </button>
 
               <WhatsAppButton

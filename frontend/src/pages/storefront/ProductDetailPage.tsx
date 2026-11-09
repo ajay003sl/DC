@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Sparkles, MessageCircle, Check, MapPin, ShieldCheck, Ruler, ArrowLeft, Share2, ShoppingBag } from 'lucide-react';
+import { Sparkles, MessageCircle, Check, MapPin, ShieldCheck, Ruler, ArrowLeft, Share2, ShoppingBag, Plus, Minus } from 'lucide-react';
 import { ProductDetail as ProductDetailType, ProductCard as ProductCardType, ProductVariant } from '../../types';
 import { api } from '../../services/api';
 import { formatPrice } from '../../utils/format';
@@ -12,13 +12,14 @@ import { useCart } from '../../context/CartContext';
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { addItem } = useCart();
+  const { items, addItem } = useCart();
   const [product, setProduct] = useState<ProductDetailType | null>(null);
   const [related, setRelated] = useState<ProductCardType[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColour, setSelectedColour] = useState<string>('');
+  const [quantity, setQuantity] = useState(1);
   const [copiedLink, setCopiedLink] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [addedToBag, setAddedToBag] = useState(false);
@@ -82,14 +83,31 @@ export const ProductDetailPage: React.FC = () => {
   const images = product.images.length > 0 ? product.images : [{ image_url: product.primary_image_url, is_primary: true, display_order: 0 }];
   const currentImageUrl = images[selectedImageIndex]?.image_url || product.primary_image_url;
 
-  // Determine variant stock for current selection
-  const matchingVariant = product.variants.find(
-    v => (selectedSize ? v.size === selectedSize : true) &&
-         (selectedColour ? v.colour === selectedColour : true)
+  // Accurate variant stock calculation for the selected size
+  const variantsForSize = product.variants.filter(
+    v => (v.size || '').trim().toUpperCase() === (selectedSize || '').trim().toUpperCase()
   );
 
-  const stockQuantity = matchingVariant ? matchingVariant.stock_quantity : product.total_stock;
-  const isOutOfStock = stockQuantity === 0;
+  const exactVariant = selectedColour
+    ? variantsForSize.find(v => (v.colour || '').trim().toLowerCase() === selectedColour.trim().toLowerCase())
+    : null;
+
+  const stockQuantity = exactVariant
+    ? exactVariant.stock_quantity
+    : variantsForSize.length > 0
+      ? variantsForSize.reduce((sum, v) => sum + v.stock_quantity, 0)
+      : product.total_stock;
+
+  const isOutOfStock = stockQuantity <= 0;
+
+  // Quantity already in cart for this product and selected size
+  const bagItem = items.find(
+    i => i.productId === product.id &&
+         (i.size || '').trim().toUpperCase() === (selectedSize || '').trim().toUpperCase()
+  );
+  const alreadyInBag = bagItem ? bagItem.quantity : 0;
+  const remainingCanAdd = Math.max(0, stockQuantity - alreadyInBag);
+  const isMaxInBag = !isOutOfStock && remainingCanAdd === 0;
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -98,7 +116,10 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   const handleAddToBag = () => {
-    if (!product || isOutOfStock) return;
+    if (!product || isOutOfStock || remainingCanAdd <= 0) return;
+    const qtyToAdd = Math.min(quantity, remainingCanAdd);
+    if (qtyToAdd <= 0) return;
+
     addItem({
       productId: product.id,
       name: product.name,
@@ -108,10 +129,11 @@ export const ProductDetailPage: React.FC = () => {
       imageUrl: currentImageUrl,
       size: selectedSize || (product.available_sizes?.[0] || 'Standard'),
       colour: selectedColour || (product.available_colours?.[0] || 'Default'),
-      quantity: 1,
+      quantity: qtyToAdd,
       maxStock: stockQuantity > 0 ? stockQuantity : undefined
     });
     setAddedToBag(true);
+    setQuantity(1);
     setTimeout(() => setAddedToBag(false), 2500);
   };
 
@@ -236,7 +258,10 @@ export const ProductDetailPage: React.FC = () => {
                       return (
                         <button
                           key={size}
-                          onClick={() => setSelectedSize(size)}
+                          onClick={() => {
+                            setSelectedSize(size);
+                            setQuantity(1);
+                          }}
                           className={`min-w-[48px] h-11 px-4 text-xs font-semibold uppercase border transition-all ${
                             isSelected
                               ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-sm'
@@ -263,7 +288,10 @@ export const ProductDetailPage: React.FC = () => {
                       return (
                         <button
                           key={col}
-                          onClick={() => setSelectedColour(col)}
+                          onClick={() => {
+                            setSelectedColour(col);
+                            setQuantity(1);
+                          }}
                           className={`flex items-center gap-1.5 px-4 py-2 text-xs border transition-all ${
                             isSelected
                               ? 'border-boutique-charcoal bg-[#1A1A1A] text-white font-semibold shadow-sm'
@@ -279,37 +307,76 @@ export const ProductDetailPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Live Physical Store Stock Indicator */}
+              {/* Live Physical Store Stock Indicator for Selected Size */}
               <div className="my-6 p-4 bg-white border border-[#EAE6E1]">
                 <div className="flex items-center gap-2.5">
                   <div className={`w-2.5 h-2.5 rounded-full ${isOutOfStock ? 'bg-red-500' : stockQuantity <= 3 ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'}`} />
                   <div>
                     {isOutOfStock ? (
                       <p className="text-xs font-semibold text-red-700">
-                        Sold Out in Physical Store for size {selectedSize} ({selectedColour})
+                        Sold Out in Physical Store for size {selectedSize}
                       </p>
                     ) : stockQuantity <= 3 ? (
                       <p className="text-xs font-semibold text-amber-800">
-                        Low Stock Alert: Only {stockQuantity} piece{stockQuantity > 1 ? 's' : ''} left in our Bangalore boutique!
+                        Low Stock Alert: Only {stockQuantity} piece{stockQuantity > 1 ? 's' : ''} available in size {selectedSize}!
                       </p>
                     ) : (
                       <p className="text-xs font-semibold text-emerald-800">
-                        In Stock & Ready for In-Store Trial or Immediate WhatsApp Order
+                        In Stock ({stockQuantity} pieces available in size {selectedSize})
                       </p>
                     )}
-                    <p className="text-[11px] text-[#8C827A] mt-0.5">
-                      Reserve this dress directly via WhatsApp before it sells out in-store.
-                    </p>
+                    {alreadyInBag > 0 && (
+                      <p className="text-[11px] text-[#7A5835] font-medium mt-0.5">
+                        ({alreadyInBag} of {stockQuantity} pieces currently in your shopping bag)
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
+
+              {/* Quantity Stepper - Strictly capped at remaining stock */}
+              {!isOutOfStock && remainingCanAdd > 0 && (
+                <div className="pt-1 pb-2 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs uppercase tracking-widest text-boutique-charcoal font-semibold block">
+                      Select Quantity:
+                    </span>
+                    <span className="text-[10px] text-[#8C827A]">
+                      Max {remainingCanAdd} can be added
+                    </span>
+                  </div>
+                  <div className="flex items-center border border-[#D5C4B0] bg-white">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      disabled={quantity <= 1}
+                      className="w-9 h-9 flex items-center justify-center text-[#5A524C] hover:bg-[#FAF7F2] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="w-10 text-center text-xs font-bold text-[#1A1A1A]">
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.min(remainingCanAdd, quantity + 1))}
+                      disabled={quantity >= remainingCanAdd}
+                      className="w-9 h-9 flex items-center justify-center text-[#5A524C] hover:bg-[#FAF7F2] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      aria-label="Increase quantity"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Primary Action Buttons: Add to Bag & Direct WhatsApp Order */}
               <div className="space-y-2.5 pt-2">
                 <button
                   type="button"
                   onClick={handleAddToBag}
-                  disabled={isOutOfStock}
+                  disabled={isOutOfStock || isMaxInBag}
                   className={`w-full py-4 text-xs tracking-luxury uppercase font-semibold flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed ${
                     addedToBag
                       ? 'bg-emerald-700 text-white'
@@ -321,10 +388,14 @@ export const ProductDetailPage: React.FC = () => {
                       <Check className="w-4 h-4 text-white" />
                       <span>Added to Shopping Bag!</span>
                     </>
+                  ) : isOutOfStock ? (
+                    <span>Sold Out for Size {selectedSize}</span>
+                  ) : isMaxInBag ? (
+                    <span>All {stockQuantity} Pieces Already in Bag</span>
                   ) : (
                     <>
                       <ShoppingBag className="w-4 h-4" />
-                      <span>{isOutOfStock ? 'Sold Out' : 'Add to Shopping Bag'}</span>
+                      <span>Add to Shopping Bag ({quantity})</span>
                     </>
                   )}
                 </button>
@@ -361,17 +432,19 @@ export const ProductDetailPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Description & Care accordion */}
-            <div className="pt-6 border-t border-[#EAE6E1] space-y-4">
-              <div>
-                <h3 className="text-xs uppercase tracking-luxury text-boutique-charcoal font-semibold mb-2">
-                  Design & Fabric Narrative
-                </h3>
-                <p className="text-xs sm:text-sm text-[#4A4A4A] leading-relaxed whitespace-pre-line">
-                  {product.description || 'Exclusively crafted women\'s fashion piece tailored with premium artisanal craftsmanship.'}
-                </p>
+            {/* Description & Care accordion - ONLY RENDER IF NON-EMPTY */}
+            {Boolean(product.description && product.description.trim().length > 0) && (
+              <div className="pt-6 border-t border-[#EAE6E1] space-y-4">
+                <div>
+                  <h3 className="text-xs uppercase tracking-luxury text-boutique-charcoal font-semibold mb-2">
+                    Design & Fabric Narrative
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#4A4A4A] leading-relaxed whitespace-pre-line">
+                    {product.description?.trim()}
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -401,7 +474,7 @@ export const ProductDetailPage: React.FC = () => {
         <button
           type="button"
           onClick={handleAddToBag}
-          disabled={isOutOfStock}
+          disabled={isOutOfStock || isMaxInBag}
           className={`flex-1 py-3 text-[11px] uppercase tracking-wider font-semibold flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50 transition-colors ${
             addedToBag
               ? 'bg-emerald-700 text-white'
@@ -413,10 +486,14 @@ export const ProductDetailPage: React.FC = () => {
               <Check className="w-3.5 h-3.5 text-white" />
               <span>Added!</span>
             </>
+          ) : isOutOfStock ? (
+            <span>Sold Out ({selectedSize})</span>
+          ) : isMaxInBag ? (
+            <span>All {stockQuantity} in Bag</span>
           ) : (
             <>
               <ShoppingBag className="w-3.5 h-3.5" />
-              <span>Add to Bag</span>
+              <span>Add to Bag ({quantity})</span>
             </>
           )}
         </button>

@@ -200,8 +200,10 @@ export const CartDrawer: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => updateQuantity(item.id, 1)}
-                            className="p-1 hover:bg-[#FAF7F2] text-boutique-charcoal transition-colors"
+                            disabled={item.maxStock !== undefined && item.quantity >= item.maxStock}
+                            className="p-1 hover:bg-[#FAF7F2] text-boutique-charcoal transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                             aria-label="Increase quantity"
+                            title={item.maxStock !== undefined && item.quantity >= item.maxStock ? `Max ${item.maxStock} available` : 'Increase quantity'}
                           >
                             <Plus className="w-3 h-3" />
                           </button>

@@ -51,17 +51,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (existingIndex > -1) {
       updated = [...items];
       const current = updated[existingIndex];
+      const maxLimit = item.maxStock !== undefined ? item.maxStock : current.maxStock;
       const newQty = current.quantity + (item.quantity || 1);
-      // Respect max stock if defined
-      const finalQty = current.maxStock ? Math.min(newQty, current.maxStock) : newQty;
-      updated[existingIndex] = { ...current, quantity: finalQty };
+      // Strictly enforce max stock if defined
+      const finalQty = maxLimit !== undefined ? Math.min(newQty, maxLimit) : newQty;
+      updated[existingIndex] = { ...current, maxStock: maxLimit, quantity: finalQty };
     } else {
+      const maxLimit = item.maxStock;
+      const initialQty = maxLimit !== undefined ? Math.min(item.quantity || 1, maxLimit) : (item.quantity || 1);
       updated = [
         ...items,
         {
           ...item,
           id: itemId,
-          quantity: item.quantity || 1
+          quantity: initialQty
         }
       ];
     }
@@ -81,7 +84,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (item.id === id) {
           const newQty = item.quantity + delta;
           if (newQty <= 0) return null;
-          if (item.maxStock && newQty > item.maxStock) return item;
+          if (item.maxStock !== undefined && newQty > item.maxStock) {
+            return { ...item, quantity: item.maxStock };
+          }
           return { ...item, quantity: newQty };
         }
         return item;
@@ -98,7 +103,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     const updated = items.map((item) => {
       if (item.id === id) {
-        const finalQty = item.maxStock ? Math.min(quantity, item.maxStock) : quantity;
+        const finalQty = item.maxStock !== undefined ? Math.min(quantity, item.maxStock) : quantity;
         return { ...item, quantity: finalQty };
       }
       return item;

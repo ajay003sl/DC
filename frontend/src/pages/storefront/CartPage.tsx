@@ -165,27 +165,35 @@ export const CartPage: React.FC = () => {
 
                         {/* Quantity Stepper & Subtotal */}
                         <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 pt-2 sm:pt-0 border-t sm:border-0 border-[#F0ECE1]">
-                          <div className="flex items-center border border-[#D5C4B0] bg-white">
-                            <button
-                              type="button"
-                              onClick={() => updateQuantity(item.id, -1)}
-                              className="w-8 h-8 flex items-center justify-center text-[#5A524C] hover:bg-[#FAF7F2] transition-colors"
-                              aria-label="Decrease quantity"
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <span className="w-9 text-center text-xs font-bold text-[#1A1A1A]">
-                              {item.quantity}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => updateQuantity(item.id, 1)}
-                              disabled={item.maxStock !== undefined && item.quantity >= item.maxStock}
-                              className="w-8 h-8 flex items-center justify-center text-[#5A524C] hover:bg-[#FAF7F2] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                              aria-label="Increase quantity"
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
+                          <div className="flex flex-col items-center sm:items-end">
+                            <div className="flex items-center border border-[#D5C4B0] bg-white">
+                              <button
+                                type="button"
+                                onClick={() => updateQuantity(item.id, -1)}
+                                className="w-8 h-8 flex items-center justify-center text-[#5A524C] hover:bg-[#FAF7F2] transition-colors"
+                                aria-label="Decrease quantity"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="w-9 text-center text-xs font-bold text-[#1A1A1A]">
+                                {item.quantity}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => updateQuantity(item.id, 1)}
+                                disabled={item.maxStock !== undefined && item.quantity >= item.maxStock}
+                                className="w-8 h-8 flex items-center justify-center text-[#5A524C] hover:bg-[#FAF7F2] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                aria-label="Increase quantity"
+                                title={item.maxStock !== undefined && item.quantity >= item.maxStock ? `Only ${item.maxStock} available in store` : 'Increase quantity'}
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            </div>
+                            {item.maxStock !== undefined && item.quantity >= item.maxStock && (
+                              <span className="text-[10px] text-amber-800 font-medium mt-1">
+                                Max {item.maxStock} available
+                              </span>
+                            )}
                           </div>
 
                           {/* Item Subtotal */}
