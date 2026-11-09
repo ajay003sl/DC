@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, Menu, X, MessageCircle, Sparkles, ChevronDown, ChevronRight, ShoppingBag, MapPin, Clock } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
@@ -239,8 +240,8 @@ export const Navbar: React.FC = () => {
       </div>
 
       {/* Mobile Drawer Navigation (True Luxury Full-Height Slide-Out Portal) */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden overflow-hidden touch-none overscroll-none">
+      {mobileMenuOpen && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[100] md:hidden overflow-hidden touch-none overscroll-none">
           {/* Animated Backdrop */}
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300 animate-fadeIn"
@@ -249,18 +250,18 @@ export const Navbar: React.FC = () => {
           />
 
           {/* Luxury Drawer Panel */}
-          <div className="fixed inset-y-0 left-0 w-[88vw] max-w-[340px] bg-[#FAF7F2] shadow-2xl flex flex-col z-50 animate-slideDrawerIn border-r border-[#EAE6E1] overscroll-contain touch-auto">
+          <div className="fixed inset-y-0 left-0 w-[85vw] max-w-[320px] h-full bg-[#FAF7F2] shadow-2xl flex flex-col z-[101] animate-slideDrawerIn border-r border-[#EAE6E1] overscroll-contain touch-auto">
             {/* Drawer Top Header */}
-            <div className="p-4 bg-white border-b border-[#EAE6E1] flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
+            <div className="p-4 bg-white border-b border-[#EAE6E1] flex items-center justify-between flex-shrink-0">
+              <div className="flex items-center gap-2.5 min-w-0">
                 {storeInfo?.logo_url ? (
                   <img
                     src={storeInfo.logo_url}
                     alt={storeInfo.store_name}
-                    className="w-9 h-9 object-cover rounded-full border border-[#D5C4B0] flex-shrink-0"
+                    className="w-10 h-10 object-cover rounded-full border border-[#D5C4B0] flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-9 h-9 rounded-full bg-[#1A1A1A] text-white flex items-center justify-center font-serif text-sm font-semibold flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-[#1A1A1A] text-white flex items-center justify-center font-serif text-sm font-semibold flex-shrink-0">
                     JF
                   </div>
                 )}
@@ -277,7 +278,7 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-1.5 text-[#5A524C] hover:text-black hover:bg-[#FAF7F2] rounded-none transition-colors border border-transparent hover:border-[#EAE6E1]"
+                className="p-1.5 text-[#5A524C] hover:text-black hover:bg-[#FAF7F2] rounded-none transition-colors border border-transparent hover:border-[#EAE6E1] flex-shrink-0 ml-2"
                 aria-label="Close menu"
               >
                 <X className="w-5 h-5" />
@@ -436,7 +437,8 @@ export const Navbar: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );
