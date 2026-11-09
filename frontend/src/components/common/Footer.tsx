@@ -28,6 +28,14 @@ export const Footer: React.FC = () => {
                 <img
                   src={storeInfo.logo_url}
                   alt={storeInfo.store_name || 'Jershiha Fashion'}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.src.includes('8559d870')) {
+                      target.src = '/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg';
+                    } else {
+                      target.style.display = 'none';
+                    }
+                  }}
                   className="w-12 h-12 object-cover rounded-full border border-[#D4AF37]/50 shadow-sm flex-shrink-0"
                 />
                 <div className="min-w-0">

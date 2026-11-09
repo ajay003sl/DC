@@ -89,6 +89,14 @@ export const Navbar: React.FC = () => {
                 <img
                   src={storeInfo.logo_url}
                   alt={storeInfo.store_name}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.src.includes('8559d870')) {
+                      target.src = '/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg';
+                    } else {
+                      target.style.display = 'none';
+                    }
+                  }}
                   className="w-11 h-11 sm:w-13 sm:h-13 object-cover rounded-full border border-[#D5C4B0] shadow-sm flex-shrink-0"
                 />
               ) : null}
@@ -258,6 +266,14 @@ export const Navbar: React.FC = () => {
                   <img
                     src={storeInfo.logo_url}
                     alt={storeInfo.store_name}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.includes('8559d870')) {
+                        target.src = '/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg';
+                      } else {
+                        target.style.display = 'none';
+                      }
+                    }}
                     className="w-10 h-10 object-cover rounded-full border border-[#D5C4B0] flex-shrink-0"
                   />
                 ) : (

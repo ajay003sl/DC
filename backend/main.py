@@ -42,19 +42,38 @@ async def lifespan(app: FastAPI):
             db.commit()
             print("Guaranteed admin user initialized: admin@jershihafashion.com")
 
-        # 2. Guarantee basic store settings exist
+        # 2. Guarantee basic store settings exist and verify logo integrity
+        DEFAULT_LOGO = "/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg"
         setting = db.query(StoreSetting).first()
         if not setting:
             new_setting = StoreSetting(
                 store_name="Jershiha Fashion",
                 tagline="Curated Women's Fashion & Ethnic Couture",
-                whatsapp_number="919876543210",
-                phone="+91 98765 43210",
+                whatsapp_number="918925184903",
+                phone="+91 8925184903",
                 email="care@jershihafashion.com",
-                address="Indiranagar, Bangalore"
+                address="Indiranagar, Bangalore",
+                logo_url=DEFAULT_LOGO
             )
             db.add(new_setting)
             db.commit()
+        else:
+            # Self-healing: if the logo points to an ephemeral uploaded file that does not exist on disk,
+            # restore it to the verified committed boutique logo so it never breaks after container rebuilds
+            if not setting.logo_url or setting.logo_url.startswith("/uploads/"):
+                needs_reset = False
+                if not setting.logo_url:
+                    needs_reset = True
+                else:
+                    filename = setting.logo_url.replace("/uploads/", "")
+                    file_path = os.path.join(settings.UPLOAD_DIR, filename)
+                    if not os.path.exists(file_path):
+                        needs_reset = True
+                
+                if needs_reset:
+                    setting.logo_url = DEFAULT_LOGO
+                    db.commit()
+                    print(f"Self-healed missing logo_url to verified committed asset: {DEFAULT_LOGO}")
 
         # 3. Clean up empty demo categories if leftover, ensuring 100% custom database
         demo_slugs = ["kurtis", "sarees", "western-wear", "dresses", "tops", "ethnic-wear", "party-wear", "casual-wear"]

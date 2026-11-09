@@ -38,6 +38,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
                 <img
                   src={storeInfo.logo_url}
                   alt={storeInfo.store_name}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.src.includes('8559d870')) {
+                      target.src = '/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg';
+                    } else {
+                      target.style.display = 'none';
+                    }
+                  }}
                   className="w-12 h-12 object-cover rounded-full border border-[#D4AF37]/60 shadow-md flex-shrink-0"
                 />
               ) : null}

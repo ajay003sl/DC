@@ -229,6 +229,12 @@ export const AdminSettingsPage: React.FC = () => {
                     <img
                       src={storeData.logo_url}
                       alt="Store Logo Preview"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (!target.src.includes('8559d870')) {
+                          target.src = '/uploads/8559d870-3228-48ce-af98-cc1677ad15e9.jpg';
+                        }
+                      }}
                       className="w-full h-full object-cover rounded-full"
                     />
                     <button
