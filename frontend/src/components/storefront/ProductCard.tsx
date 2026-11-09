@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, MessageCircle, Sparkles, ShoppingBag, Check } from 'lucide-react';
 import { ProductCard as ProductCardType } from '../../types';
-import { formatPrice } from '../../utils/format';
-import { WhatsAppButton } from '../common/WhatsAppButton';
+import { formatPrice, buildWhatsAppUrl } from '../../utils/format';
 import { useCart } from '../../context/CartContext';
+import { useStore } from '../../context/StoreContext';
 
 interface ProductCardProps {
   product: ProductCardType;
@@ -15,6 +15,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
   const [isHovered, setIsHovered] = useState(false);
   const [added, setAdded] = useState(false);
   const { addItem } = useCart();
+  const { storeInfo } = useStore();
 
   const primaryImage = product.primary_image_url || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80';
   const secondaryImage = product.images.length > 1 ? product.images[1].image_url : primaryImage;
@@ -42,6 +43,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
 
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleWhatsAppEnquiry = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = buildWhatsAppUrl({
+      productName: product.name,
+      sku: product.sku,
+      size: product.available_sizes?.[0] || 'Standard',
+      colour: product.available_colours?.[0] || 'Standard',
+      price: product.effective_price,
+      phone: storeInfo?.whatsapp_number,
+      storeName: storeInfo?.store_name
+    });
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -109,14 +125,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
             </button>
           )}
 
-          <WhatsAppButton
-            productName={product.name}
-            sku={product.sku}
-            price={product.effective_price}
-            variant="pill"
-            label="Enquire"
-            className="!px-2.5 !py-1.5 sm:!py-2 !rounded-none !text-[10px] sm:!text-[11px] uppercase tracking-wider"
-          />
+          <button
+            type="button"
+            onClick={handleWhatsAppEnquiry}
+            className="px-2.5 py-1.5 sm:py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] sm:text-[11px] uppercase tracking-wider font-medium flex items-center justify-center gap-1 shadow transition-colors"
+            title="Enquire via WhatsApp"
+          >
+            <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            <span>Enquire</span>
+          </button>
         </div>
       </div>
 
@@ -169,39 +186,43 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
             </div>
           )}
 
-          {/* Action Buttons: Add to Bag & WhatsApp */}
-          <div className="mt-3 pt-2.5 border-t border-[#F2ECE1] grid grid-cols-2 gap-1.5">
+          {/* Luxury Action Bar: Add to Bag + WhatsApp */}
+          <div className="mt-3 pt-2.5 border-t border-[#F0ECE1] flex items-center gap-1.5">
             <button
               type="button"
               onClick={handleQuickAdd}
               disabled={isOutOfStock}
-              className={`py-2 px-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1 transition-all rounded-xs ${
+              className={`flex-1 h-9 px-2 text-[10px] sm:text-xs uppercase tracking-[0.14em] font-medium flex items-center justify-center gap-1.5 transition-all duration-200 border ${
                 added
-                  ? 'bg-emerald-700 text-white'
-                  : 'bg-[#1A1A1A] hover:bg-black text-white active:scale-95'
-              } disabled:opacity-40 disabled:cursor-not-allowed`}
+                  ? 'bg-[#1E3F20] text-white border-[#1E3F20]'
+                  : 'bg-[#1A1A1A] hover:bg-black text-white border-[#1A1A1A] active:scale-[0.98]'
+              } disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs rounded-none`}
             >
               {added ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-white" />
+                  <Check className="w-3.5 h-3.5 text-[#D4AF37]" />
                   <span>Added</span>
                 </>
               ) : (
                 <>
-                  <ShoppingBag className="w-3.5 h-3.5" />
-                  <span>{isOutOfStock ? 'Sold Out' : 'Add to Bag'}</span>
+                  <ShoppingBag className="w-3.5 h-3.5 stroke-[1.8]" />
+                  <span className="truncate">{isOutOfStock ? 'Sold Out' : 'Add to Bag'}</span>
                 </>
               )}
             </button>
 
-            <WhatsAppButton
-              productName={product.name}
-              sku={product.sku}
-              price={product.effective_price}
-              variant="pill"
-              label="WhatsApp"
-              className="!py-2 !px-1 !rounded-xs !text-[10px] sm:!text-xs uppercase tracking-wider !font-semibold !justify-center shadow-2xs"
-            />
+            <button
+              type="button"
+              onClick={handleWhatsAppEnquiry}
+              className="h-9 px-2.5 sm:px-3 bg-white hover:bg-[#FAF7F2] border border-[#D5C4B0] hover:border-[#1A1A1A] text-emerald-800 flex items-center justify-center gap-1.5 transition-colors shadow-2xs rounded-none flex-shrink-0"
+              title="Enquire or Order via WhatsApp"
+              aria-label="Enquire via WhatsApp"
+            >
+              <MessageCircle className="w-3.5 h-3.5 fill-emerald-800/15 text-emerald-800" />
+              <span className="hidden sm:inline text-[10px] uppercase tracking-wider font-semibold text-emerald-900">
+                WhatsApp
+              </span>
+            </button>
           </div>
         </div>
       </div>
