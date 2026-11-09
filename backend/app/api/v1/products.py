@@ -158,7 +158,7 @@ def create_product(
             var = ProductVariant(
                 product_id=product.id,
                 size=v_data.size.strip().upper(),
-                colour=v_data.colour.strip(),
+                colour=(v_data.colour or "").strip(),
                 colour_hex=v_data.colour_hex or "#FFFFFF",
                 stock_quantity=max(0, v_data.stock_quantity),
                 sku_suffix=v_data.sku_suffix or f"{product.sku}-{v_data.size}"
@@ -259,7 +259,7 @@ def update_product(
             var = ProductVariant(
                 product_id=product.id,
                 size=v_data.size.strip().upper(),
-                colour=v_data.colour.strip(),
+                colour=(v_data.colour or "").strip(),
                 colour_hex=v_data.colour_hex or "#FFFFFF",
                 stock_quantity=max(0, v_data.stock_quantity),
                 sku_suffix=v_data.sku_suffix or f"{product.sku}-{v_data.size}"

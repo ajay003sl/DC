@@ -144,14 +144,14 @@ export const AdminProductEditPage: React.FC = () => {
   const ALL_PRESET_SIZES = [...STANDARD_LETTER_SIZES, ...NUMERIC_SIZES, ...BOUTIQUE_SIZES];
 
   // Variant actions
-  const handleAddVariantRow = (defaultSize: string = 'Free Size', colour: string = 'Standard') => {
+  const handleAddVariantRow = (defaultSize: string = 'Free Size', colour: string = '') => {
     setVariants([
       ...variants,
       { size: defaultSize, colour, colour_hex: '#FFFFFF', stock_quantity: 5 }
     ]);
   };
 
-  const handleQuickAddLetterSizes = (colour: string = 'Standard') => {
+  const handleQuickAddLetterSizes = (colour: string = '') => {
     const stdSizes = ['S', 'M', 'L', 'XL'];
     const newVars = stdSizes.map((s) => ({
       size: s,
@@ -162,7 +162,7 @@ export const AdminProductEditPage: React.FC = () => {
     setVariants([...variants, ...newVars]);
   };
 
-  const handleQuickAddNumericSizes = (colour: string = 'Standard') => {
+  const handleQuickAddNumericSizes = (colour: string = '') => {
     const numSizes = ['30', '32', '34', '36', '38'];
     const newVars = numSizes.map((s) => ({
       size: s,
@@ -173,7 +173,7 @@ export const AdminProductEditPage: React.FC = () => {
     setVariants([...variants, ...newVars]);
   };
 
-  const handleQuickAddFreeSize = (colour: string = 'Standard') => {
+  const handleQuickAddFreeSize = (colour: string = '') => {
     setVariants([
       ...variants,
       { size: 'Free Size', colour, colour_hex: '#FFFFFF', stock_quantity: 10 }
@@ -209,6 +209,26 @@ export const AdminProductEditPage: React.FC = () => {
     setSaving(true);
     setError(null);
 
+    // Clean variants: trim size and colour
+    const cleanedVariants = variants.map((v) => ({
+      ...v,
+      size: (v.size || 'Free Size').trim(),
+      colour: (v.colour || '').trim(),
+      stock_quantity: Math.max(0, Number(v.stock_quantity) || 0)
+    }));
+
+    // Check for duplicate size + colour combination
+    const seen = new Set<string>();
+    for (const v of cleanedVariants) {
+      const key = `${v.size.toUpperCase()}__${v.colour.toUpperCase()}`;
+      if (seen.has(key)) {
+        setSaving(false);
+        setError(`Duplicate variant row for Size "${v.size}"${v.colour ? ` and Colour "${v.colour}"` : ''}. Please adjust or remove the duplicate row.`);
+        return;
+      }
+      seen.add(key);
+    }
+
     const payload = {
       name: name.trim(),
       sku: sku.trim() || undefined,
@@ -223,7 +243,7 @@ export const AdminProductEditPage: React.FC = () => {
       is_on_offer: false,
       offer_label: null,
       images,
-      variants
+      variants: cleanedVariants
     };
 
     try {
@@ -368,41 +388,9 @@ export const AdminProductEditPage: React.FC = () => {
               required
               value={originalPrice}
               onChange={(e) => setOriginalPrice(Number(e.target.value))}
+              placeholder="e.g. 2999"
               className="w-full px-3.5 py-2.5 text-xs bg-[#FAF7F2] border border-[#EAE6E1] font-semibold"
             />
-          </div>
-
-          {/* Status Checkbox Toggles */}
-          <div className="pt-4 border-t border-[#F0ECE1] grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <label className="flex items-center gap-2 cursor-pointer text-xs">
-              <input
-                type="checkbox"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-                className="rounded border-[#D5C4B0] text-[#1A1A1A]"
-              />
-              <span className="font-semibold text-boutique-charcoal">Active on Storefront</span>
-            </label>
-
-            <label className="flex items-center gap-2 cursor-pointer text-xs">
-              <input
-                type="checkbox"
-                checked={isFeatured}
-                onChange={(e) => setIsFeatured(e.target.checked)}
-                className="rounded border-[#D5C4B0] text-amber-600"
-              />
-              <span className="font-semibold text-boutique-charcoal">Featured on Home</span>
-            </label>
-
-            <label className="flex items-center gap-2 cursor-pointer text-xs">
-              <input
-                type="checkbox"
-                checked={isNewArrival}
-                onChange={(e) => setIsNewArrival(e.target.checked)}
-                className="rounded border-[#D5C4B0] text-purple-600"
-              />
-              <span className="font-semibold text-boutique-charcoal">New Arrival Badge</span>
-            </label>
           </div>
         </div>
 
@@ -523,7 +511,7 @@ export const AdminProductEditPage: React.FC = () => {
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickAddFreeSize('Standard')}
+                onClick={() => handleQuickAddFreeSize('')}
                 className="px-2.5 py-1.5 bg-[#FAF7F2] border border-[#D5C4B0] text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-boutique-charcoal hover:bg-[#F2ECE1] transition-colors"
                 title="Add a Free Size dress row"
               >
@@ -545,7 +533,7 @@ export const AdminProductEditPage: React.FC = () => {
               <thead className="bg-[#FAF7F2] text-[#8C827A] uppercase tracking-wider border-b border-[#EAE6E1]">
                 <tr>
                   <th className="py-2.5 px-3">Size (Letter / Numeric)</th>
-                  <th className="py-2.5 px-3">Colour Name</th>
+                  <th className="py-2.5 px-3">Colour (Optional)</th>
                   <th className="py-2.5 px-3">In-Store Stock Quantity</th>
                   <th className="py-2.5 px-3 text-right">Remove</th>
                 </tr>
@@ -605,7 +593,7 @@ export const AdminProductEditPage: React.FC = () => {
                         type="text"
                         value={v.colour}
                         onChange={(e) => handleVariantChange(idx, 'colour', e.target.value)}
-                        placeholder="e.g. Sage Green, Ruby Red, Black"
+                        placeholder="Optional (leave blank if not applicable)"
                         className="w-full px-2.5 py-1.5 bg-white border border-[#D5C4B0] text-xs"
                       />
                     </td>

@@ -47,7 +47,9 @@ export const CartDrawer: React.FC = () => {
     const itemsSummary = items
       .map((item, idx) => {
         const itemTotal = formatPrice(item.price * item.quantity);
-        return `${idx + 1}. *${item.name}* (SKU: ${item.sku})\n   • Size: ${item.size} | Colour: ${item.colour}\n   • Qty: ${item.quantity} × ${formatPrice(item.price)} = ${itemTotal}`;
+        const hasColour = item.colour && !['standard', 'default', 'none', 'n/a', ''].includes(item.colour.trim().toLowerCase());
+        const colourPart = hasColour ? ` | Colour: ${item.colour.trim()}` : '';
+        return `${idx + 1}. *${item.name}* (SKU: ${item.sku})\n   • Size: ${item.size}${colourPart}\n   • Qty: ${item.quantity} × ${formatPrice(item.price)} = ${itemTotal}`;
       })
       .join('\n\n');
 

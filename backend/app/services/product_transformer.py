@@ -24,7 +24,10 @@ def natural_size_sort_key(s: str):
 def product_to_card_out(prod: Product) -> ProductCardOut:
     raw_sizes = list({v.size for v in prod.variants if v.size})
     sizes = sorted(raw_sizes, key=natural_size_sort_key)
-    colours = sorted(list({v.colour for v in prod.variants if v.colour}))
+    colours = sorted(list({
+        v.colour.strip() for v in prod.variants
+        if v.colour and v.colour.strip() and v.colour.strip().lower() not in ("standard", "default", "none", "n/a", "-")
+    }))
     primary_img = prod.primary_image_url
     
     images_out = [

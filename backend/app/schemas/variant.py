@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 class VariantBase(BaseModel):
     size: str
-    colour: str
+    colour: str = ""
     colour_hex: str = "#FFFFFF"
     stock_quantity: int = 0
     sku_suffix: Optional[str] = None
