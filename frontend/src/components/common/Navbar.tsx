@@ -196,8 +196,8 @@ export const Navbar: React.FC = () => {
             </button>
 
             {/* Shopping Bag Button */}
-            <button
-              onClick={openCart}
+            <Link
+              to="/cart"
               className="relative p-2 text-boutique-charcoal hover:text-boutique-terracotta transition-colors flex items-center gap-1.5"
               aria-label="View Shopping Bag"
               title="Shopping Bag"
@@ -208,7 +208,7 @@ export const Navbar: React.FC = () => {
                   {totalCount}
                 </span>
               )}
-            </button>
+            </Link>
 
             {/* WhatsApp direct chat */}
             <a
@@ -425,17 +425,14 @@ export const Navbar: React.FC = () => {
 
             {/* Pinned Luxury Footer Actions */}
             <div className="p-4 bg-white border-t border-[#EAE6E1] space-y-2 flex-shrink-0 shadow-lg">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  openCart();
-                }}
+              <Link
+                to="/cart"
+                onClick={() => setMobileMenuOpen(false)}
                 className="w-full h-11 px-4 bg-[#1A1A1A] hover:bg-black text-white text-xs uppercase tracking-[0.14em] font-medium flex items-center justify-center gap-2 shadow-sm rounded-none active:scale-[0.99] transition-all"
               >
                 <ShoppingBag className="w-4 h-4 stroke-[1.8]" />
                 <span>View Shopping Bag ({totalCount})</span>
-              </button>
+              </Link>
 
               <a
                 href={whatsappUrl}

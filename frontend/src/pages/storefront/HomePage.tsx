@@ -109,49 +109,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FDFBF7]">
-      {/* 1. Luxury Boutique Header Banner */}
-      <section className="bg-[#FAF7F2] text-boutique-charcoal py-7 sm:py-10 px-4 border-b border-[#EAE6E1]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-[#D5C4B0] text-[#7A5835] text-[10px] sm:text-xs tracking-[0.14em] uppercase font-semibold mb-2 shadow-2xs">
-              <Sparkles className="w-3 h-3 text-[#D4AF37]" />
-              <span>Bangalore Boutique & Direct Online Ordering</span>
-            </div>
-            <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal tracking-wide text-[#1A1A1A]">
-              {storeInfo?.store_name || 'Jershiha Fashion'}
-            </h1>
-            <p className="text-xs sm:text-sm text-[#736B63] mt-1.5 max-w-xl font-light">
-              Handpicked sarees, festive kurtis & designer dresses. Check live designs, add to your bag, or order directly via WhatsApp.
-            </p>
-          </div>
-
-          {/* Quick Search Input */}
-          <div className="w-full md:w-80">
-            <form onSubmit={handleSearchSubmit} className="relative">
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search by dress name or style..."
-                className="w-full pl-9 pr-9 py-2.5 bg-white text-boutique-charcoal text-xs placeholder-[#9C948B] border border-[#D5C4B0] focus:outline-none focus:border-[#1A1A1A] rounded-none shadow-2xs"
-              />
-              <Search className="w-4 h-4 text-[#8C827A] absolute left-3 top-3" />
-              {searchInput && (
-                <button
-                  type="button"
-                  onClick={handleClearSearch}
-                  className="absolute right-3 top-3 text-[#8C827A] hover:text-black"
-                  title="Clear search"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </form>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. Category Selector Section (Custom Luxury Dropdown on Mobile, Tabs on Desktop) */}
+      {/* 1. Category Selector Section (Custom Luxury Dropdown on Mobile, Tabs on Desktop) */}
       <section className="bg-white border-b border-[#EAE6E1] py-3 sticky top-16 sm:top-20 z-30 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           

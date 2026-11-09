@@ -10,7 +10,6 @@ import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
 import { FloatingWhatsApp } from './components/common/FloatingWhatsApp';
 import { ScrollToTop } from './components/common/ScrollToTop';
-import { CartDrawer } from './components/storefront/CartDrawer';
 import { AdminLayout } from './components/admin/AdminLayout';
 
 // Public Pages
@@ -18,6 +17,7 @@ import { HomePage } from './pages/storefront/HomePage';
 import { ShopPage } from './pages/storefront/ShopPage';
 import { ProductDetailPage } from './pages/storefront/ProductDetailPage';
 import { CategoryPage } from './pages/storefront/CategoryPage';
+import { CartPage } from './pages/storefront/CartPage';
 import { AboutPage } from './pages/storefront/AboutPage';
 import { ContactPage } from './pages/storefront/ContactPage';
 
@@ -37,7 +37,6 @@ const StorefrontLayout: React.FC = () => {
       <main className="flex-1">
         <Outlet />
       </main>
-      <CartDrawer />
       <FloatingWhatsApp />
       <Footer />
     </div>
@@ -59,6 +58,7 @@ export const App: React.FC = () => {
               <Route path="/shop" element={<HomePage />} />
               <Route path="/product/:slug" element={<ProductDetailPage />} />
               <Route path="/category/:slug" element={<CategoryPage />} />
+              <Route path="/cart" element={<CartPage />} />
               <Route path="/offers" element={<Navigate to="/" replace />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
