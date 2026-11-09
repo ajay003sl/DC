@@ -53,7 +53,7 @@ export const Footer: React.FC = () => {
               </h3>
             )}
             <p className="text-sm text-[#A8A096] leading-relaxed">
-              Your friendly neighborhood women's clothing store. We offer handpicked readymade kurtis, sarees, western wear, and custom stitching & fitting alterations. Visit us in-store or browse online.
+              Your friendly neighborhood boutique for women's fashion. We offer handpicked designer dresses, contemporary women's wear, and custom stitching & fitting alterations. Visit us in-store or browse online.
             </p>
             <div className="pt-2">
               <a

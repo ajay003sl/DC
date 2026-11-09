@@ -232,7 +232,7 @@ export const Navbar: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search kurtis, sarees, cocktail dresses, satin gowns, linen jumpsuits..."
+                placeholder="Search dresses, designs, collections..."
                 className="w-full pl-11 pr-24 py-2.5 bg-white border border-[#D5C4B0] text-sm rounded-none focus:outline-none focus:border-boutique-charcoal placeholder-[#9C948B]"
                 autoFocus
               />
@@ -312,7 +312,7 @@ export const Navbar: React.FC = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search dresses, sarees, kurtis..."
+                  placeholder="Search dresses, designs, styles..."
                   className="w-full pl-9 pr-4 py-2 bg-white border border-[#D5C4B0] text-xs text-[#1A1A1A] placeholder-[#9C948B] focus:outline-none focus:border-[#1A1A1A] rounded-none shadow-2xs"
                 />
                 <Search className="w-3.5 h-3.5 text-[#8C827A] absolute left-3 top-2.5" />

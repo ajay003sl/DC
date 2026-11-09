@@ -88,7 +88,7 @@ export const CartPage: React.FC = () => {
               Your Shopping Bag is Currently Empty
             </h2>
             <p className="text-xs sm:text-sm text-[#8C827A] max-w-md mx-auto mb-6 font-light">
-              Explore our boutique collection of handpicked sarees, festive kurtis, and designer wear. Check live designs and add them to your bag.
+              Explore our boutique collection of handpicked women's dresses and exclusive designer wear. Check live designs and add them to your bag.
             </p>
             <Link
               to="/"
@@ -168,7 +168,7 @@ export const CartPage: React.FC = () => {
                           <div className="flex items-center border border-[#D5C4B0] bg-white">
                             <button
                               type="button"
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.id, -1)}
                               className="w-8 h-8 flex items-center justify-center text-[#5A524C] hover:bg-[#FAF7F2] transition-colors"
                               aria-label="Decrease quantity"
                             >
@@ -179,7 +179,7 @@ export const CartPage: React.FC = () => {
                             </span>
                             <button
                               type="button"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.id, 1)}
                               disabled={item.maxStock !== undefined && item.quantity >= item.maxStock}
                               className="w-8 h-8 flex items-center justify-center text-[#5A524C] hover:bg-[#FAF7F2] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                               aria-label="Increase quantity"

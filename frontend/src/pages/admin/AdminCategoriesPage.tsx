@@ -537,7 +537,7 @@ export const AdminCategoriesPage: React.FC = () => {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Kurtis, Sarees, Western Wear"
+                  placeholder="e.g. Festive Wear, Casual Dresses, Evening Wear"
                   className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-[#EAE6E1] focus:outline-none focus:border-boutique-charcoal"
                 />
               </div>

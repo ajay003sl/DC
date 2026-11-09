@@ -53,7 +53,7 @@ export const OffersPage: React.FC = () => {
             Special Offers & Festive Sales
           </h1>
           <p className="text-sm text-[#6B6B6B] mt-3 leading-relaxed">
-            Take advantage of exclusive discounts on handcrafted silk sarees, embellished kurtis, and designer dresses. Real-time prices reflect in-store promotions.
+            Take advantage of exclusive discounts on handcrafted women's dresses, festive designs, and boutique couture. Real-time prices reflect in-store promotions.
           </p>
         </div>
 

@@ -6,6 +6,7 @@ interface CartContextType {
   addItem: (item: Omit<CartItem, 'id'>) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, delta: number) => void;
+  setQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   totalCount: number;
   totalPrice: number;
@@ -90,6 +91,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     saveToStorage(updated);
   };
 
+  const setQuantity = (id: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeItem(id);
+      return;
+    }
+    const updated = items.map((item) => {
+      if (item.id === id) {
+        const finalQty = item.maxStock ? Math.min(quantity, item.maxStock) : quantity;
+        return { ...item, quantity: finalQty };
+      }
+      return item;
+    });
+    saveToStorage(updated);
+  };
+
   const clearCart = () => {
     saveToStorage([]);
   };
@@ -104,6 +120,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addItem,
         removeItem,
         updateQuantity,
+        setQuantity,
         clearCart,
         totalCount,
         totalPrice,
@@ -125,6 +142,7 @@ export const useCart = () => {
       addItem: () => {},
       removeItem: () => {},
       updateQuantity: () => {},
+      setQuantity: () => {},
       clearCart: () => {},
       totalCount: 0,
       totalPrice: 0,

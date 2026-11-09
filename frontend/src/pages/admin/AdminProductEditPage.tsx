@@ -323,7 +323,7 @@ export const AdminProductEditPage: React.FC = () => {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Zari Embroidered Chanderi Kurti"
+                placeholder="e.g. Elegant Floral Maxi Dress"
                 className="w-full px-3.5 py-2.5 text-xs bg-[#FAF7F2] border border-[#EAE6E1] focus:outline-none focus:border-boutique-charcoal"
               />
             </div>

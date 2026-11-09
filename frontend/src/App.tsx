@@ -8,7 +8,6 @@ import { CartProvider } from './context/CartContext';
 // Common Layouts
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
-import { FloatingWhatsApp } from './components/common/FloatingWhatsApp';
 import { ScrollToTop } from './components/common/ScrollToTop';
 import { AdminLayout } from './components/admin/AdminLayout';
 
@@ -37,7 +36,6 @@ const StorefrontLayout: React.FC = () => {
       <main className="flex-1">
         <Outlet />
       </main>
-      <FloatingWhatsApp />
       <Footer />
     </div>
   );

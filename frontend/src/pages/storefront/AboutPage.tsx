@@ -33,7 +33,7 @@ export const AboutPage: React.FC = () => {
             </h2>
             
             <p>
-              At Jershiha Fashion, we believe dressing well shouldn't be complicated or overpriced. We carefully source and handpick our clothing collections—bringing you trending kurtis, beautiful sarees, comfortable casual wear, tops, and celebration outfits that match modern trends and everyday comfort.
+              At Jershiha Fashion, we believe dressing well shouldn't be complicated or overpriced. We carefully source and handpick our clothing collections—bringing you trending women's dresses, stylish casual wear, tops, and celebration outfits that match modern trends and everyday comfort.
             </p>
 
             <p>
@@ -92,7 +92,7 @@ export const AboutPage: React.FC = () => {
             </div>
             <h3 className="font-serif text-lg font-medium text-boutique-charcoal mb-2">Carefully Handpicked</h3>
             <p className="text-xs text-[#6B6B6B] leading-relaxed">
-              We select trendy, good-quality readymade dresses, kurtis, and everyday casuals at fair, affordable prices.
+              We select trendy, good-quality readymade dresses and everyday women's wear at fair, affordable prices.
             </p>
           </div>
 

@@ -125,7 +125,7 @@ export const CartDrawer: React.FC = () => {
               <div className="space-y-1">
                 <p className="font-serif text-xl text-boutique-charcoal font-medium">Your Shopping Bag is Empty</p>
                 <p className="text-xs text-[#8C827A] max-w-xs mx-auto">
-                  Browse our handpicked designer ethnic couture, sarees & western wear to find your perfect fit.
+                  Browse our handpicked designer dresses and exclusive women's wear to find your perfect fit.
                 </p>
               </div>
               <button
