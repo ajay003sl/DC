@@ -87,7 +87,6 @@ def product_to_detail_out(prod: Product) -> ProductDetailOut:
         **card.model_dump(),
         description=prod.description,
         category=CategoryOut.model_validate(prod.category) if prod.category else None,
-        variants=variants_out,
         offers=offers_out,
         updated_at=prod.updated_at
     )

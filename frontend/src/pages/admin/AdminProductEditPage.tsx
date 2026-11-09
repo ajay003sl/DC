@@ -14,11 +14,13 @@ import {
 } from 'lucide-react';
 import { Category, ProductDetail, ProductImage, ProductVariant } from '../../types';
 import { api } from '../../services/api';
+import { useAdminNotification } from '../../context/AdminNotificationContext';
 
 export const AdminProductEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const isEditing = Boolean(id && id !== 'new');
   const navigate = useNavigate();
+  const { showSuccess, showError } = useAdminNotification();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -200,14 +202,17 @@ export const AdminProductEditPage: React.FC = () => {
     e.preventDefault();
     if (!name.trim()) {
       setError('Please provide a product title');
+      showError('Product Title Required', 'Please provide a title or name for this product.');
       return;
     }
     if (originalPrice <= 0) {
       setError('Original price must be greater than zero');
+      showError('Invalid Price', 'Original price must be greater than zero.');
       return;
     }
     if (images.length === 0) {
       setError('Please add at least one product image');
+      showError('Image Required', 'Please upload or add at least one product image before saving.');
       return;
     }
 
@@ -228,7 +233,9 @@ export const AdminProductEditPage: React.FC = () => {
       const key = `${v.size.toUpperCase()}__${v.colour.toUpperCase()}`;
       if (seen.has(key)) {
         setSaving(false);
-        setError(`Duplicate variant row for Size "${v.size}"${v.colour ? ` and Colour "${v.colour}"` : ''}. Please adjust or remove the duplicate row.`);
+        const dupMsg = `Duplicate variant row for Size "${v.size}"${v.colour ? ` and Colour "${v.colour}"` : ''}. Please adjust or remove the duplicate row.`;
+        setError(dupMsg);
+        showError('Duplicate Variant', dupMsg);
         return;
       }
       seen.add(key);
@@ -254,12 +261,31 @@ export const AdminProductEditPage: React.FC = () => {
     try {
       if (isEditing) {
         await api.admin.updateProduct(Number(id), payload);
+        navigate('/admin/products', {
+          state: {
+            notification: {
+              type: 'success',
+              title: 'Product Updated Successfully!',
+              message: `"${name.trim()}" has been updated and is live on your store.`
+            }
+          }
+        });
       } else {
         await api.admin.createProduct(payload);
+        navigate('/admin/products', {
+          state: {
+            notification: {
+              type: 'success',
+              title: 'Product Added Successfully!',
+              message: `"${name.trim()}" has been published and is live in your catalog.`
+            }
+          }
+        });
       }
-      navigate('/admin/products');
     } catch (err: any) {
-      setError(err.message || 'Failed to save product');
+      const errMsg = err.message || 'Failed to save product';
+      setError(errMsg);
+      showError(isEditing ? 'Failed to Update Product' : 'Failed to Add Product', errMsg);
     } finally {
       setSaving(false);
     }

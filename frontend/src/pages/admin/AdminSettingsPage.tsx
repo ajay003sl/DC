@@ -19,10 +19,12 @@ import {
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { useStore } from '../../context/StoreContext';
+import { useAdminNotification } from '../../context/AdminNotificationContext';
 import { StoreInfo } from '../../types';
 
 export const AdminSettingsPage: React.FC = () => {
   const { refreshStoreInfo } = useStore();
+  const { showSuccess, showError } = useAdminNotification();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Settings State
@@ -106,9 +108,12 @@ export const AdminSettingsPage: React.FC = () => {
       setStoreData(updated);
       await refreshStoreInfo();
       setSettingsSuccess('Store details, WhatsApp number, and address updated successfully!');
+      showSuccess('Store Settings Updated!', 'Your boutique profile, contact numbers, and address changes are live.');
       setTimeout(() => setSettingsSuccess(''), 6000);
     } catch (err: any) {
-      setSettingsError(err.message || 'Failed to update store settings');
+      const errMsg = err.message || 'Failed to update store settings';
+      setSettingsError(errMsg);
+      showError('Failed to Update Settings', errMsg);
     } finally {
       setSavingSettings(false);
     }

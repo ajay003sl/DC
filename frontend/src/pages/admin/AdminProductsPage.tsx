@@ -17,8 +17,10 @@ import {
 import { ProductCard, Category, ProductListResponse } from '../../types';
 import { api } from '../../services/api';
 import { formatPrice } from '../../utils/format';
+import { useAdminNotification } from '../../context/AdminNotificationContext';
 
 export const AdminProductsPage: React.FC = () => {
+  const { showSuccess, showError } = useAdminNotification();
   const [products, setProducts] = useState<ProductCard[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,23 +65,32 @@ export const AdminProductsPage: React.FC = () => {
   }, [page, search, selectedCategory, selectedStatus]);
 
   const handleToggleStatus = async (productId: number, currentStatus: boolean) => {
+    const product = products.find((p) => p.id === productId);
+    const prodName = product ? product.name : 'Product';
     try {
       await api.admin.toggleProductStatus(productId, { is_active: !currentStatus });
       setProducts((prev) =>
         prev.map((p) => (p.id === productId ? { ...p, is_active: !currentStatus } : p))
       );
+      showSuccess(
+        !currentStatus ? 'Product Activated' : 'Product Deactivated',
+        `"${prodName}" is now ${!currentStatus ? 'visible on' : 'hidden from'} the public storefront.`
+      );
     } catch (err: any) {
-      alert(`Failed to update status: ${err.message}`);
+      showError('Status Update Failed', err.message || 'Could not update product status.');
     }
   };
 
   const handleDelete = async (id: number) => {
+    const productToDelete = products.find((p) => p.id === id);
+    const prodName = productToDelete ? productToDelete.name : 'Product';
     try {
       await api.admin.deleteProduct(id);
       setDeleteConfirmId(null);
-      fetchProducts();
+      await fetchProducts();
+      showSuccess('Product Deleted Successfully!', `"${prodName}" has been permanently removed from your catalog.`);
     } catch (err: any) {
-      alert(`Failed to delete product: ${err.message}`);
+      showError('Failed to Delete Product', err.message || 'An error occurred while deleting the product.');
     }
   };
 

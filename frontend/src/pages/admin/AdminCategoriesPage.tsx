@@ -3,9 +3,11 @@ import { Plus, Edit2, Trash2, FolderTree, Check, X, AlertCircle, AlertTriangle, 
 import { Category } from '../../types';
 import { api } from '../../services/api';
 import { useStore } from '../../context/StoreContext';
+import { useAdminNotification } from '../../context/AdminNotificationContext';
 
 export const AdminCategoriesPage: React.FC = () => {
   const { refreshCategories: refreshStorefrontCategories } = useStore();
+  const { showSuccess, showError } = useAdminNotification();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -104,17 +106,18 @@ export const AdminCategoriesPage: React.FC = () => {
     try {
       if (editingCategory) {
         await api.admin.updateCategory(editingCategory.id, payload);
-        setSuccessMessage(`Category "${payload.name}" updated successfully!`);
+        showSuccess('Category Updated Successfully!', `Category "${payload.name}" has been updated.`);
       } else {
         await api.admin.createCategory(payload);
-        setSuccessMessage(`Category "${payload.name}" created successfully!`);
+        showSuccess('Category Created Successfully!', `Category "${payload.name}" has been created.`);
       }
       setModalOpen(false);
       await fetchCategories();
       await refreshStorefrontCategories();
-      setTimeout(() => setSuccessMessage(null), 4000);
     } catch (err: any) {
-      setError(err.message || 'Failed to save category');
+      const errMsg = err.message || 'Failed to save category';
+      setError(errMsg);
+      showError('Failed to Save Category', errMsg);
     }
   };
 
@@ -131,6 +134,7 @@ export const AdminCategoriesPage: React.FC = () => {
 
   const handleConfirmDelete = async () => {
     if (!deletingCategory) return;
+    const catName = deletingCategory.name;
     setIsDeleting(true);
     setDeleteError(null);
 
@@ -141,14 +145,15 @@ export const AdminCategoriesPage: React.FC = () => {
         force: hasProducts && deleteOption === 'cascade' ? true : undefined
       });
 
-      setSuccessMessage(`Category "${deletingCategory.name}" was permanently deleted.`);
       setDeleteModalOpen(false);
       setDeletingCategory(null);
       await fetchCategories();
       await refreshStorefrontCategories();
-      setTimeout(() => setSuccessMessage(null), 4000);
+      showSuccess('Category Deleted Successfully!', `Category "${catName}" was permanently removed.`);
     } catch (err: any) {
-      setDeleteError(err.message || 'Failed to delete category');
+      const errMsg = err.message || 'Failed to delete category';
+      setDeleteError(errMsg);
+      showError('Failed to Delete Category', errMsg);
     } finally {
       setIsDeleting(false);
     }
